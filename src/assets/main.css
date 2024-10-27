@@ -1,0 +1,16 @@
+@import '@/assets/fonts/roboto.css';
+
+body {
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-weight: 700;
+    font-style: normal;
+    margin: 0;
+}
+
+el-header {
+    --el-header-height: 80px;
+    height: var(--el-header-height);
+    width: 100%;
+    position: fixed;
+    top: 0;
+}
