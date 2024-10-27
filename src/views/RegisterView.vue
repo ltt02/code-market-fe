@@ -6,6 +6,11 @@
             role="alert">
             <span class="font-medium">Lỗi!</span> Đăng ký không thành công. Vui lòng thử lại.
         </div>
+        <div v-if="isRegisterOk"
+            class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 text-green-700 p-6 text-center text-lg z-50 rounded-md"
+            role="alert">
+            <span class="font-medium">Đăng ký thành công!</span>
+        </div>
 
         <!-- <div class="max-md:h-[250px] lg:flex-auto bg-[#191a24] flex items-center px-10">
             <img class="w-full h-full object-cover opacity-[45%]" src="@/assets/img_register.jpg" alt="" />
@@ -58,6 +63,7 @@ import { ref } from 'vue';
 // import bcrypt from 'bcryptjs';
 
 const isRegisterFailed = ref(false);
+const isRegisterOk = ref(false);
 const router = useRouter();
 
 const register = async (data) => {
@@ -66,8 +72,16 @@ const register = async (data) => {
             userName: data.name,
             password: data.password,
         });
-        console.log(response.data);
-        router.push('/login');
+        if (response.data) {
+            isRegisterOk.value = true; // Set the flag to true
+            setTimeout(() => {
+                isRegisterOk.value = false;
+            }, 1500);
+            console.log(response.data);
+        }
+        setTimeout(() => {
+            router.push('/login');
+        }, 1000);
     } catch (error) {
         console.error(error);
         //toast.error('Register failed!');

@@ -5,6 +5,7 @@ import ProductCart from '@/views/ProductCart.vue'
 import ProductListView from '@/views/ProductListView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import UserInfo from '@/views/UserInfo.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,11 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView,
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: UserInfo,
     }
   ],
   scrollBehavior(to, from, savedPosition) {

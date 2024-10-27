@@ -39,7 +39,8 @@
 
                 <!-- Search Bar -->
                 <div class="hidden md:block flex-grow max-w-md mx-6">
-                    <div class="relative" @keyup.enter="router.push({name: 'applicationList', query: { query: model }})">
+                    <div class="relative"
+                        @keyup.enter="router.push({ name: 'applicationList', query: { query: model } })">
                         <input v-model="model" type="text" placeholder="Tìm kiếm..."
                             class="w-full bg-gray-700 rounded-full py-2 px-4 pl-10 text-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
                         <router-link :to="{ name: 'applicationList', query: { query: model } }">
@@ -58,9 +59,30 @@
                             Đăng nhập
                         </router-link>
                     </button>
-                    <button v-else class="text-gray-300 hover:text-white">
-                        <UserIcon class="h-6 w-6" />
-                    </button>
+                    <div v-else class="flex">
+                        <button class="text-gray-300 hover:text-white">
+                            <a @click.stop="toggleSubNavUser()">
+                                <UserIcon class="h-6 w-6" />
+                            </a>
+                        </button>
+                        <div id="dropdown-user" :class="{ 'hidden': !isOpenedSubNavUser, 'block': isOpenedSubNavUser }"
+                            class="z-10 font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600 absolute top-16">
+                            <ul class="py-2 text-sm text-gray-700 dark:text-gray-400">
+                                <li v-for="subItem in userMenu" :key="subItem.id">
+                                    <router-link v-if="subItem.name !== 'Đăng xuất'"
+                                        :to="{ name: subItem.componentName }"
+                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                                        {{ subItem.name }}
+                                    </router-link>
+                                    <a v-else @click="handleLogout"
+                                        class="w-full text-left block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                        {{ subItem.name }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <button class="md:hidden text-gray-300 hover:text-white" @click="toggleMobileMenu">
                         <MenuIcon class="h-6 w-6" />
                     </button>
@@ -102,7 +124,13 @@ const model = defineModel()
 const navItems = ref([])
 const mobileMenuOpen = ref(false)
 const openedSubNav = ref(null)
+const isOpenedSubNavUser = ref(false)
 const isLoggedIn = ref(false);
+
+const userMenu = [
+    { id: 1, name: 'Thông tin tài khoản', url: '/user', componentName: 'profile' },
+    { id: 2, name: 'Đăng xuất', url: '/logout', componentName: 'login' },
+]
 
 const toggleMobileMenu = () => {
     mobileMenuOpen.value = !mobileMenuOpen.value
@@ -111,14 +139,28 @@ const toggleMobileMenu = () => {
 // Function to toggle sub-navigation visibility
 const toggleSubNav = (id) => {
     openedSubNav.value = openedSubNav.value === id ? null : id
-    console.log(1);
+}
+
+const toggleSubNavUser = () => {
+    isOpenedSubNavUser.value = !isOpenedSubNavUser.value
 }
 
 // Function to close sub-navigation if clicked outside
 const closeSubNav = (event) => {
     if (!event.target.closest('nav')) {
         openedSubNav.value = null
+        isOpenedSubNavUser.value = false
     }
+}
+
+// Function to handle logout
+const handleLogout = () => {
+    // Clear user session or token
+    localStorage.removeItem('user');
+    isLoggedIn.value = false;
+
+    // Redirect to login page
+    router.push({ name: 'login' });
 }
 
 const getHeaderNavList = async () => {
