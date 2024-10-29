@@ -194,7 +194,7 @@
                                                     <span>Lượt mua</span>
                                                     <div class="aside-basic-info-value">
                                                         <span>
-                                                            {{ application.downloads }}
+                                                            {{ formatNumber(application.downloads) }}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -266,7 +266,7 @@
                                             </div>
                                         </div>
                                         <div class="aside-share-report">
-                                            <div class="aside-share-report-section">
+                                            <!-- <div class="aside-share-report-section">
                                                 <button>
                                                     <svg aria-hidden="true" class="eds_5nt5ak0 eds_5nt5ak9 eds_14hl3lj7"
                                                         width="24" height="24" viewBox="0 0 24 24">
@@ -276,7 +276,7 @@
                                                     </svg>
                                                     <span class="eds_14hl3lj6"><span>Chia sẻ</span></span>
                                                 </button>
-                                            </div>
+                                            </div> -->
                                             <div class="aside-share-report-section">
                                                 <button>
                                                     <svg aria-hidden="true" class="eds_5nt5ak0 eds_5nt5ak9 eds_14hl3lj7"
@@ -298,7 +298,7 @@
                                 <div class="product-detail-rating">
                                     <div class="rating-title">
                                         <h3 class="rating-title-text">
-                                            <span>Đánh giá từ người dùng</span>
+                                            <span>Đánh giá từ {{ formatNumber(application.downloads) }} người dùng</span>
                                         </h3>
                                     </div>
                                 </div>
@@ -454,10 +454,14 @@ const formatedSalePrice = computed(() => {
     return VND.format(salePrice);
 })
 
+const formatNumber = (number) => {
+    return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 const addToCart = async () => {
     var toastContainer = document.getElementById('addCartMessage');
     var toastExistedContainer = document.getElementById('addExistedCartMessage');
-    const response = await CartService.addApplicationToCart(11, application.value.id);
+    const response = await CartService.addApplicationToCart(12, application.value.id);
     if (response == 1) {
         toastExistedContainer.display = 'none';
         toastExistedContainer.style.display = '';
@@ -468,7 +472,7 @@ const addToCart = async () => {
         toastContainer.style.display = 'none';
         toastContainer.style.display = '';
         setTimeout(function () {
-            toastExistedContainer.style.display = 'none';
+            toastContainer.style.display = 'none';
         }, 1000);
     }
 };

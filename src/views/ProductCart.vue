@@ -76,7 +76,7 @@
                     <div class="space-y-2 mb-4">
                         <div class="flex justify-between">
                             <span>Số tiền</span>
-                            <span>{{ totalPrice }}</span>
+                            <span>{{ totalPriceFormated }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span>Thuế</span>
@@ -86,10 +86,10 @@
                     <div class="border-t border-gray-700 pt-4 mb-6">
                         <div class="flex justify-between font-semibold">
                             <span>Tổng tiền</span>
-                            <span>{{ totalPrice }}</span>
+                            <span>{{ totalPriceFormated }}</span>
                         </div>
                     </div>
-                    <button
+                    <button @click="placeOrder"
                         class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded transition-colors">
                         Thanh toán
                     </button>
@@ -139,13 +139,15 @@ const cartItems = ref([
 ])
 
 const applicationInCart = ref([]);
+const paymentUrl = ref("");
 
 const totalPrice = computed(() => {
-    const total = applicationInCart.value.reduce((sum, item) => {
+    return applicationInCart.value.reduce((sum, item) => {
         return sum + parseInt(item.application.price)
     }, 0)
-    return `${total.toLocaleString()} ₫`
 })
+
+const totalPriceFormated = computed(() => `${totalPrice.value.toLocaleString()} ₫`)
 
 const VNDFormatter = new Intl.NumberFormat('vi-VN', {
     style: 'currency',
@@ -163,6 +165,8 @@ const getApplicationType = (type) => {
 const getCart = async () => {
     const response = await CartService.getCart();
     applicationInCart.value = response;
+    const cartDetails = CartService.cartItems.value.map((item) => item.cartDetailId );
+    CartService.cartDetailsToOrder.value = CartService.cartDetailsToOrder.value.concat(cartDetails);
     return response;
 }
 
@@ -170,6 +174,16 @@ const removeFromCart = async (cartDetailId) => {
     const response = await CartService.deleteCartDetail(cartDetailId);
     applicationInCart.value = response;
     return response;
+}
+
+const placeOrder = async () => {
+  let data = {
+    status: "PROCESSING",
+    total: totalPrice.value
+  };
+  paymentUrl.value = (await CartService.addCartDetailToOrder_payment(data)).data;
+  if (paymentUrl.value != null)
+    window.location.href = paymentUrl.value;
 }
 
 onBeforeMount(() => {

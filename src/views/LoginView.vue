@@ -106,14 +106,14 @@ import AInput from '@/components/form/AInput.vue';
 import { ref, inject } from 'vue';
 // import bcrypt from 'bcryptjs';
 // import useUserStore from '@/store/userStore.js';
-import CartService from '@/services/cart.service';
+// import CartService from '@/services/cart.service';
 
 const isLoginFailed = ref(false);
 const isWrongPass = ref(false);
 const isloggedInOK = ref(false);
 const islocked = ref(false);
 const router = useRouter();
-const cartService: { cartService: CartService } = inject('cartService')!;
+// const cartService: { cartService: CartService } = inject('cartService')!;
 // const userStore = useUserStore();
 
 const login = async (data) => {
@@ -132,8 +132,7 @@ const login = async (data) => {
             }, 1500);
 
             // Lưu thông tin tài khoản vào localStorage
-            cartService.customerId = response.data.id;
-            console.log(cartService.customerId)
+            // cartService.customerId = response.data.id;
             localStorage.setItem('user', JSON.stringify(response.data));
 
             // userStore.setUser(response.data);

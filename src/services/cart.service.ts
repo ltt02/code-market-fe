@@ -32,24 +32,27 @@ class CartService {
     if (localStorage.getItem("account")) {
       this.customerId = JSON.parse(localStorage.getItem("account")!).id;
     } else {
-      this.customerId = 11;
+      this.customerId = 12;
     }
 
-    const response = await axios.get(`${baseUri}/customers/${this.customerId}/cart`);
+    const response = await axios.get(
+      `${baseUri}/customers/${this.customerId}/cart`
+    );
     this.cartItems.value = response.data;
 
     this.subTotal.value = 0;
     this.total.value = 0;
-    this.cartItems._rawValue.forEach(item => {
+    if (this.cartItems._rawValue) {
+      this.cartItems._rawValue.forEach((item) => {
         this.subTotal.value += item.application.price;
-    });
+      });
+    }
     this.cartQuantity.value = 0;
 
     this.subTotal.value =
       this.total.value + this.shipCost.value - this.discount.value;
     response.data.forEach((item) => {
       this.cartQuantity.value++;
-      console.log(this.cartQuantity._rawValue);
     });
 
     return response.data;
@@ -58,7 +61,7 @@ class CartService {
   async createOrder(data) {
     try {
       const baseUri = this.getBaseUri();
-      data.total = this.subTotal.value;
+      this.subTotal.value = data.total;
       const response = await axios.post(
         `${baseUri}/customers/${this.customerId}/orders`,
         data
@@ -78,7 +81,10 @@ class CartService {
       customerId: customerId,
       applicationId: applicationId,
     };
-    const response = await axios.post(`${baseUri}/customers/${customerId}/cart`, cartDetail);
+    const response = await axios.post(
+      `${baseUri}/customers/${customerId}/cart`,
+      cartDetail
+    );
     if (response.data === "This application is existed") {
       return 1;
     }
@@ -86,26 +92,11 @@ class CartService {
     return response;
   }
 
-  async addCartDetailToOrder_payment(data, paymentOption) {
+  async addCartDetailToOrder_payment(data) {
     try {
       const newOrder = await this.createOrder(data);
       this.orderId.value = newOrder.id;
-
-      const shipment = this.createShipment(
-        JSON.parse(localStorage.getItem("orderShipment")!)
-      );
-
-      if (paymentOption == "vnpay") {
-        return await this.paymentByVNPay(this.orderId.value);
-      }
-
-      if (paymentOption == "COD") {
-        await this.paymentByCOD(this.orderId.value);
-        await this.addOrderToSuccessful(this.orderId.value);
-        window.location.href = "http://localhost:8081/account/orders";
-      }
-
-      return true;
+      return await this.paymentByVNPay(this.orderId.value);
     } catch (error) {
       console.error(error);
       throw error;
@@ -198,6 +189,11 @@ class CartService {
     const response = await axios.delete(
       `${baseUri}/customers/${this.customerId}/cart/${cartDetailId}`
     );
+    if (this.cartQuantity.value == 0) {
+      this.cartQuantity.value = 0;
+    } else {
+      this.cartQuantity.value--;
+    }
     return response.data;
   }
 

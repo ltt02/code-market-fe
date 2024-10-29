@@ -91,6 +91,10 @@
                     }" class="h-6">
                         <button class="text-gray-300 hover:text-white">
                             <ShoppingCart class="h-6 w-6" />
+                            <span
+                                class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10 absolute top-4">{{
+                                    CartService.cartQuantity == 0 ? applicationInCart.length : CartService.cartQuantity
+                                }}</span>
                         </button>
                     </router-link>
                 </div>
@@ -114,10 +118,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router';
 import { SearchIcon, UserIcon, MenuIcon, ShoppingCart, ChevronDown } from 'lucide-vue-next'
 import HeaderNavService from "@/services/header_nav.service.ts"
+import CartService from "@/services/cart.service.ts"
 
 const router = useRouter();
 const model = defineModel()
@@ -126,6 +131,13 @@ const mobileMenuOpen = ref(false)
 const openedSubNav = ref(null)
 const isOpenedSubNavUser = ref(false)
 const isLoggedIn = ref(false);
+const applicationInCart = ref([]);
+
+const props = defineProps({
+    cartQuantityAfterPayment: {
+        type: Number,
+    }
+})
 
 const userMenu = [
     { id: 1, name: 'Thông tin tài khoản', url: '/user', componentName: 'profile' },
@@ -168,6 +180,27 @@ const getHeaderNavList = async () => {
     navItems.value = response;
     return response;
 }
+
+const getCart = async () => {
+    const response = await CartService.getCart();
+    applicationInCart.value = response;
+    return response;
+}
+
+const getQueryParamByName = (name) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
+
+onBeforeMount(() => {
+    getCart();
+    if (getQueryParamByName('vnp_ResponseCode')) {
+        const code = getQueryParamByName('vnp_ResponseCode');
+        if (code == '00') {
+            CartService.cartQuantity.value = 0;
+        }
+    }
+});
 
 // Initialize component and attach click event for detecting outside clicks
 onMounted(() => {
