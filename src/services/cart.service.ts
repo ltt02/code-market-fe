@@ -12,6 +12,7 @@ class CartService {
   public subTotal?;
   public customerId!: number;
   public cartQuantity;
+  public updatedOrderAfterPayment?;
 
   constructor() {
     this.cartItems = ref<number[]>([]);
@@ -22,6 +23,7 @@ class CartService {
     this.discount = ref<number>(0);
     this.subTotal = ref<number>(0);
     this.cartQuantity = ref<number>(0);
+    this.updatedOrderAfterPayment = ref<number[]>([]);
     if (localStorage.getItem("account")) {
       this.customerId = JSON.parse(localStorage.getItem("account")!).id || 0;
     }
@@ -42,8 +44,9 @@ class CartService {
 
     this.subTotal.value = 0;
     this.total.value = 0;
-    if (this.cartItems._rawValue) {
-      this.cartItems._rawValue.forEach((item) => {
+    if (typeof this.cartItems._rawValue != typeof "") {
+      const cartItems = this.cartItems._rawValue;
+      cartItems.forEach((item) => {
         this.subTotal.value += item.application.price;
       });
     }
@@ -51,24 +54,36 @@ class CartService {
 
     this.subTotal.value =
       this.total.value + this.shipCost.value - this.discount.value;
+
     response.data.forEach((item) => {
       this.cartQuantity.value++;
     });
-
     return response.data;
   }
 
   async createOrder(data) {
     try {
       const baseUri = this.getBaseUri();
-      this.subTotal.value = data.total;
       const response = await axios.post(
-        `${baseUri}/customers/${this.customerId}/orders`,
+        `${baseUri}/customers/${this.customerId}/orders/author/${data.authorId}`,
         data
       );
       this.orderId.value = response.data.id;
 
       return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async updateOrder(newOrder) {
+    try {
+      const baseUri = this.getBaseUri();
+      const response = await axios.put(
+        `${baseUri}/customers/${this.customerId}/orders/${newOrder.id}`,
+        newOrder
+      );
     } catch (error) {
       console.error(error);
       throw error;
@@ -94,36 +109,66 @@ class CartService {
 
   async addCartDetailToOrder_payment(data) {
     try {
-      const newOrder = await this.createOrder(data);
-      this.orderId.value = newOrder.id;
-      return await this.paymentByVNPay(this.orderId.value);
+      this.subTotal.value = data.total;
+      const orderGroupByAuthor = Object.values(
+        data.items.reduce((acc, item) => {
+          const { authorId, price } = item.application;
+
+          if (!acc[authorId]) {
+            acc[authorId] = { authorId, price: 0 };
+          }
+
+          acc[authorId].price += price;
+          return acc;
+        }, {})
+      );
+
+      // let request;
+      // for (let i = 0; i < orderGroupByAuthor.length; i++) {
+      //   request = {
+      //     authorId: orderGroupByAuthor[i].authorId,
+      //     total: orderGroupByAuthor[i].price,
+      //     status: data.status,
+      //   };
+      //   const newOder = await this.createOrder(request);
+      //   this.updatedOrderAfterPayment.value.push(newOder);
+      // }
+      return await this.paymentByVNPay(orderGroupByAuthor);
     } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async paymentByVNPay(orderId: Number) {
+  async paymentByVNPay(orderList) {
     const baseUri = this.getBaseUri();
     let data = {
-      amount: this.subTotal.value,
-      method: "vnpay",
-      status: "PENDING",
+      payment: {
+        amount: this.subTotal.value,
+        method: "vnpay",
+        status: "PENDING",
+      },
+      orderList: orderList,
     };
 
     localStorage.setItem("amount", this.subTotal.value);
 
     localStorage.setItem(
       "cartDetails",
-      this.cartDetailsToOrder.value.toString()
+      JSON.stringify(this.cartDetailsToOrder._value)
     );
 
-    return axios.post(`${baseUri}/payment/${orderId}/vnpay`, data, {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "*/*",
-      },
-    });
+    const response = await axios.post(
+      `${baseUri}/payment/vnpay/${this.customerId}`,
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+        },
+      }
+    );
+    return response;
   }
 
   async paymentByCOD(orderId: Number) {
@@ -136,10 +181,7 @@ class CartService {
 
     localStorage.setItem("amount", this.subTotal.value);
 
-    localStorage.setItem(
-      "cartDetails",
-      this.cartDetailsToOrder.value.toString()
-    );
+    localStorage.setItem("cartDetails", this.cartDetailsToOrder.value);
 
     return axios.post(`${baseUri}/payment/${orderId}/cod`, data, {
       headers: {
@@ -149,32 +191,35 @@ class CartService {
     });
   }
 
-  async addOrderToSuccessful(orderId: number) {
+  async addOrderToSuccessful(orderId: number, regularArray) {
     const baseUri = this.getBaseUri();
 
     this.orderId.value = orderId;
 
-    const regularArray = localStorage.getItem("cartDetails")!.split(",");
-
     await axios.post(
-      `${baseUri}/customers/${this.customerId}/orders/${this.orderId.value}`,
+      `${baseUri}/customers/${this.customerId}/orders/${orderId}`,
       regularArray
     );
 
-    const order = await this.getOrderById(this.orderId.value);
+    if (this.cartQuantity.value == 0) {
+      this.cartQuantity.value = 0;
+    } else {
+      this.cartQuantity.value -= regularArray.length;
+    }
 
-    let data = {
-      ...order,
-      status: "PROCESSING",
-      total: localStorage.getItem("amount"),
+    const response = await this.getOrderById(orderId);
+
+    let request = {
+      ...response.data,
+      status: "SUCCESSFUL",
     };
 
     localStorage.removeItem("amount");
 
     // update payment
     await axios.put(
-      `${baseUri}/customers/${this.customerId}/orders/${this.orderId.value}`,
-      data
+      `${baseUri}/customers/${this.customerId}/orders/${orderId}`,
+      request
     );
   }
 

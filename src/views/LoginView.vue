@@ -50,11 +50,11 @@
                     </div>
                     <div class="w-full flex gap-3 mt-3">
                         <button @click="onLogin"
-                            class="bg-[#3E334E] text-white flex-[1] w-full py-3 font-bold rounded-lg">
+                            class="bg-[#3E334E] text-white flex-[1] w-full py-3 font-bold rounded-lg hover:opacity-60">
                             Đăng nhập
                         </button>
                         <RouterLink to="/register"
-                            class="block text-center border-[1px] border-[#3E334E] text-[#3E334E] flex-[1] w-full font-bold py-3 rounded-lg">
+                            class="block text-center border-[1px] border-[#3E334E] text-[#3E334E] flex-[1] w-full font-bold py-3 rounded-lg hover:bg-gray-200">
                             Đăng ký
                         </RouterLink>
                     </div>
@@ -66,9 +66,9 @@
                     </div>
                     <div class="w-full flex gap-3 mt-3">
                         <div class="flex justify-center w-full">
-                            <button
-                                class="social-button flex items-center bg-white border border-gray-300 rounded shadow-md max-w-xs px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                                <svg class="h-6 w-3 mr-2" xmlns="http://www.w3.org/2000/svg"
+                            <button @click="onLoginDeveloper"
+                                class="social-button flex items-center bg-[#3E334E] text-white border border-gray-300 rounded shadow-md max-w-xs px-6 py-2 text-sm font-medium hover:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                <!-- <svg class="h-6 w-3 mr-2" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" version="1.1">
                                     <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                         <g id="Color-" transform="translate(-200.000000, -160.000000)" fill="#4460A0">
@@ -79,9 +79,8 @@
                                             </path>
                                         </g>
                                     </g>
-                                </svg>
-                                <span>Đăng nhập với Facebook
-                                </span>
+                                </svg> -->
+                                <span>Đăng nhập với tư cách nhà phát triển</span>
                             </button>
                         </div>
                     </div>
@@ -92,9 +91,9 @@
 </template>
 
 <style>
-.social-button:hover {
+/* .social-button:hover {
     background-color: #edf2f7 !important;
-}
+} */
 </style>
 
 <script setup lang="ts">
@@ -134,6 +133,46 @@ const login = async (data) => {
             // Lưu thông tin tài khoản vào localStorage
             // cartService.customerId = response.data.id;
             localStorage.setItem('user', JSON.stringify(response.data));
+
+            // userStore.setUser(response.data);
+            setTimeout(() => {
+                router.push('/home');
+            }, 1000);
+
+        } else {
+            console.log('Mật khẩu không khớp.');
+            isWrongPass.value = true;
+            setTimeout(() => {
+                isWrongPass.value = false;
+            }, 5000);
+        }
+    } catch (error) {
+        console.error(error);
+        isLoginFailed.value = true; // Set the flag to true
+        setTimeout(() => {
+            isLoginFailed.value = false; // Clear the flag after 5 seconds
+        }, 5000);
+    };
+};
+
+const loginDeveloper = async (data) => {
+    try {
+        // Sử dụng hashedPassword thay vì data.password khi gửi đi
+        const response = await axios.post(`http://localhost:8080/developers/login`, {
+            userName: data.name,
+            password: data.password,
+        });
+
+        // Kiểm tra xem API có trả về dữ liệu hay không
+        if (response.data) {
+            isloggedInOK.value = true;
+            setTimeout(() => {
+                isloggedInOK.value = false;
+            }, 1500);
+
+            // Lưu thông tin tài khoản vào localStorage
+            // cartService.customerId = response.data.id;
+            localStorage.setItem('developer', JSON.stringify(response.data));
 
             // userStore.setUser(response.data);
             setTimeout(() => {
@@ -227,6 +266,12 @@ const { handleSubmit } = useForm({
 const onLogin = () => {
     handleSubmit(async (values) => {
         await login(values);
+    })();
+};
+
+const onLoginDeveloper = () => {
+    handleSubmit(async (values) => {
+        await loginDeveloper(values);
     })();
 };
 </script>

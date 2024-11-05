@@ -4,13 +4,13 @@
     id="successPayment" style="right: 4px; margin-top: 15px;">
     <span class="font-medium">Thanh toán thành công!</span>
   </div>
-  <div v-if="isFailedPayment" class="fixed top-20 bg-red-100 text-red-700 p-6 text-center text-lg z-50 rounded-md" role="alert"
-    id="addExistedCartMessage" style="right: 4px; margin-top: 15px;">
+  <div v-if="isFailedPayment" class="fixed top-20 bg-red-100 text-red-700 p-6 text-center text-lg z-50 rounded-md"
+    role="alert" id="addExistedCartMessage" style="right: 4px; margin-top: 15px;">
     <span class="font-medium">Thanh toán thất bại, xin thử lại!</span>
   </div>
 
   <el-header>
-    <HeaderMenu :cart-quantity-after-payment="CartService.cartQuantity.value"/>
+    <HeaderMenu :cart-quantity-after-payment="CartService.cartQuantity.value" />
   </el-header>
 
   <el-main>
@@ -27,7 +27,7 @@
 
 
 <script setup>
-import { ref, reactive, computed, onBeforeMount, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onBeforeMount, onMounted, onBeforeUnmount, watch } from 'vue';
 import HeaderMenu from '@/components/common/HeaderMenu.vue'
 import SearchInput from '@/components/common/SearchInput.vue'
 import CarouselSlide from '@/components/common/CarouselSlide.vue'
@@ -35,6 +35,10 @@ import FooterComponent from '@/components/common/FooterComponent.vue'
 import ProductList from '@/components/product/ProductList.vue'
 import ApplicationService from "@/services/application.service.js"
 import CartService from "@/services/cart.service.ts"
+
+import { useCartStore } from '@/stores/cart.store'
+
+const cartStore = useCartStore();
 
 const listSlides = [
   { id: 1, title: 'Ứng dụng mới', name: 'newApplications' },
@@ -45,7 +49,6 @@ const listSlides = [
 const applicationListResponse = ref([]);
 const isSuccessfulPayment = ref();
 const isFailedPayment = ref();
-
 const retrieveApplicationList = async () => {
   try {
     applicationListResponse.value = await ApplicationService.getAll();
@@ -63,18 +66,21 @@ const init = () => {
   retrieveApplicationList();
 }
 
-watch(isSuccessfulPayment,)
+//watch(isSuccessfulPayment,)
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   if (getQueryParamByName('vnp_ResponseCode')) {
     const code = getQueryParamByName('vnp_ResponseCode');
     if (code == '00') {
       CartService.cartQuantity.value = 0;
-      CartService.addOrderToSuccessful(+getQueryParamByName('orderId'));
+      const cartDetails = JSON.parse(localStorage.getItem('cartDetails'));
+      for (let i = 0; i < cartDetails.length; i++) {
+        await CartService.addOrderToSuccessful(cartDetails[i].orderId, cartDetails[i].cartDetailIdList);
+      }
       isSuccessfulPayment.value = true;
       setTimeout(() => {
         isSuccessfulPayment.value = null;
-      }, 2000); 
+      }, 2000);
     } else {
       isFailedPayment.value = true;
       setTimeout(() => {

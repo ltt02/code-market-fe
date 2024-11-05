@@ -6,6 +6,7 @@ import ProductListView from '@/views/ProductListView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import UserInfo from '@/views/UserInfo.vue'
+import DeveloperPage from '@/views/DeveloperPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,6 +46,11 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: UserInfo,
+    },
+    {
+      path: '/developer',
+      name: 'developer',
+      component: DeveloperPage,
     }
   ],
   scrollBehavior(to, from, savedPosition) {

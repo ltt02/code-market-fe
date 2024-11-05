@@ -23,7 +23,7 @@
                         </a>
                         <div v-if="item.subNavList.length > 0" :id="'dropdown-' + item.id"
                             :class="{ 'hidden': openedSubNav !== item.id, 'block': openedSubNav === item.id }"
-                            class="z-10 font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600 absolute top-16">
+                            class="z-10 font-normal bg-white divide-y divide-gray-100 rounded-lg shadow min-w-36 dark:bg-gray-700 dark:divide-gray-600 absolute top-16">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-400">
                                 <li v-for="subItem in item.subNavList" :key="subItem.id">
                                     <router-link
@@ -36,6 +36,15 @@
                         </div>
                     </div>
                 </nav>
+
+                <div class="flex mx-6">
+                    <button v-if="isShowDeveloperBtn" type="button"
+                        class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <router-link :to="{ name: 'developer' }">
+                            Dành cho nhà phát triển
+                        </router-link>
+                    </button>
+                </div>
 
                 <!-- Search Bar -->
                 <div class="hidden md:block flex-grow max-w-md mx-6">
@@ -93,7 +102,8 @@
                             <ShoppingCart class="h-6 w-6" />
                             <span
                                 class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10 absolute top-4">{{
-                                    CartService.cartQuantity == 0 ? applicationInCart.length : CartService.cartQuantity
+                                    CartService.cartQuantity.value == 0 ? applicationInCart.length :
+                                        CartService.cartQuantity.value
                                 }}</span>
                         </button>
                     </router-link>
@@ -118,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeMount } from 'vue'
+import { ref, onMounted, onBeforeMount, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router';
 import { SearchIcon, UserIcon, MenuIcon, ShoppingCart, ChevronDown } from 'lucide-vue-next'
 import HeaderNavService from "@/services/header_nav.service.ts"
@@ -132,6 +142,7 @@ const openedSubNav = ref(null)
 const isOpenedSubNavUser = ref(false)
 const isLoggedIn = ref(false);
 const applicationInCart = ref([]);
+const isShowDeveloperBtn = ref(false);
 
 const props = defineProps({
     cartQuantityAfterPayment: {
@@ -169,6 +180,7 @@ const closeSubNav = (event) => {
 const handleLogout = () => {
     // Clear user session or token
     localStorage.removeItem('user');
+    localStorage.removeItem('developer');
     isLoggedIn.value = false;
 
     // Redirect to login page
@@ -188,24 +200,27 @@ const getCart = async () => {
 }
 
 const getQueryParamByName = (name) => {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(name);
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
 }
 
-onBeforeMount(() => {
-    getCart();
+onBeforeMount(async () => {
+
+});
+
+// Initialize component and attach click event for detecting outside clicks
+onMounted(async () => {
     if (getQueryParamByName('vnp_ResponseCode')) {
         const code = getQueryParamByName('vnp_ResponseCode');
         if (code == '00') {
             CartService.cartQuantity.value = 0;
+            applicationInCart.value = [];
         }
     }
-});
-
-// Initialize component and attach click event for detecting outside clicks
-onMounted(() => {
-    isLoggedIn.value = localStorage.getItem('user') ? true : false;
-    getHeaderNavList()
+    isLoggedIn.value = localStorage.getItem('user') || localStorage.getItem('developer') ? true : false;
+    isShowDeveloperBtn.value = localStorage.getItem('developer') ? true : false;
+    await getHeaderNavList()
+    await getCart();
     document.addEventListener('click', closeSubNav)
 })
 </script>

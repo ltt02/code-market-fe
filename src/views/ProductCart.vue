@@ -32,13 +32,13 @@
                                 params: {
                                     id: item.application.id,
                                 },
-                            }"  class="flex-grow">
+                            }" class="flex-grow">
                                 <div class="flex-grow">
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <span class="text-xs text-gray-400">{{
                                                 getApplicationType(item.application.type)
-                                                }}</span>
+                                            }}</span>
                                             <h2 class="text-l font-semibold">{{ item.application.name }}</h2>
                                         </div>
                                         <span v-if="item.application.price > 0" class="text-xl">{{
@@ -104,10 +104,12 @@
 
 <script setup>
 import { ref, reactive, computed, onBeforeMount } from 'vue'
-import { ExternalLinkIcon, Coins, InfoIcon, Trash2  } from 'lucide-vue-next'
+import { ExternalLinkIcon, Coins, InfoIcon, Trash2 } from 'lucide-vue-next'
 import CartService from "@/services/cart.service.ts"
 import { APPLICATION_TYPE } from '@/const.js';
+import { useCartStore } from '@/stores/cart.store'
 
+const cartStore = useCartStore();
 const cartItems = ref([
     {
         id: 1,
@@ -140,6 +142,7 @@ const cartItems = ref([
 
 const applicationInCart = ref([]);
 const paymentUrl = ref("");
+const orderIdList = ref([]);
 
 const totalPrice = computed(() => {
     return applicationInCart.value.reduce((sum, item) => {
@@ -165,8 +168,22 @@ const getApplicationType = (type) => {
 const getCart = async () => {
     const response = await CartService.getCart();
     applicationInCart.value = response;
-    const cartDetails = CartService.cartItems.value.map((item) => item.cartDetailId );
-    CartService.cartDetailsToOrder.value = CartService.cartDetailsToOrder.value.concat(cartDetails);
+    const groupedOrders = Object.values(
+        response.reduce((acc, item) => {
+            const { authorId } = item.application;
+            const cartDetailId = item.cartDetailId;
+
+            if (!acc[authorId]) {
+                acc[authorId] = { authorId, cartDetailIdList: [] };
+            }
+
+            acc[authorId].cartDetailIdList.push(cartDetailId);
+            return acc;
+        }, {})
+    );
+    const cartDetails = CartService.cartItems.value.map((item) => item.cartDetailId);
+    CartService.cartDetailsToOrder.value = groupedOrders;
+    cartStore.setCartDetails(groupedOrders);
     return response;
 }
 
@@ -177,13 +194,21 @@ const removeFromCart = async (cartDetailId) => {
 }
 
 const placeOrder = async () => {
-  let data = {
-    status: "PROCESSING",
-    total: totalPrice.value
-  };
-  paymentUrl.value = (await CartService.addCartDetailToOrder_payment(data)).data;
-  if (paymentUrl.value != null)
-    window.location.href = paymentUrl.value;
+    let data = {
+        status: "PROCESSING",
+        total: totalPrice.value,
+        items: applicationInCart.value,
+    };
+    const response = await CartService.addCartDetailToOrder_payment(data);
+    paymentUrl.value = response.data.paymentUrl;
+    orderIdList.value = response.data.orderIdList;
+    const cartDetails = JSON.parse(localStorage.getItem('cartDetails'));
+    const mergedArray = cartDetails.map((item, index) => {
+        return { ...item, orderId: orderIdList._value[index] };
+    });
+    localStorage.setItem('cartDetails', JSON.stringify(mergedArray));
+    if (paymentUrl.value != null)
+        window.location.href = paymentUrl.value;
 }
 
 onBeforeMount(() => {
