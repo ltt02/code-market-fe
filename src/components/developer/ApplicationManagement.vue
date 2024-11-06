@@ -1,7 +1,8 @@
 <template>
-    <ProductAddForm @add-product-done="retriveProducts" :is-show-sidebar="props.isShowSidebar"/>
-    <ProductUpdateForm @update-product="retriveProducts" :product-for-updating="selectedProduct"/>
-    <ProductDetails @add-detail-done="showDetails" @update-detail-done="showDetails" @reset-details="reloadDetails" :product-details="productDetails" :product-id="selectedProduct.id"/>
+    <ProductAddForm @add-product-done="retriveProducts" :is-show-sidebar="props.isShowSidebar" />
+    <ProductUpdateForm @update-product="retriveProducts" :product-for-updating="selectedProduct" />
+    <ProductDetails @add-detail-done="showDetails" @update-detail-done="showDetails" @reset-details="reloadDetails"
+        :product-details="productDetails" :product-id="selectedProduct.id" />
     <div class="product-managemen p-3">
         <div class="w-full">
             <div class="w-full">
@@ -77,10 +78,16 @@
                             Tên ứng dụng
                         </th>
                         <th scope="col" class="px-4 py-3">
+                            Dung lượng (MB)
+                        </th>
+                        <th scope="col" class="px-4 py-3">
                             Giá
                         </th>
                         <th scope="col" class="px-4 py-3">
-                            Đã bán
+                            Lượt tải
+                        </th>
+                        <th scope="col" class="px-4 py-3">
+                            Trạng thái
                         </th>
                     </tr>
                 </thead>
@@ -89,7 +96,7 @@
                         class="row-data border-b dark:bg-gray-800 cursor-pointer">
                         <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{ item.id ? item.id :
-        "Chưa cập nhật" }}
+                            "Chưa cập nhật" }}
                         </th>
                         <!-- <td class="px-4 py-4 w-1/10">
                             {{ item.product.id ? item.product.id :
@@ -98,11 +105,15 @@
                         <!-- <td class="px-6 py-4 overflow-x-auto custom-scrollbar-cell" style="max-width: 150px"> -->
                         <td class="px-4 py-4">
                             {{ item.name ? item.name :
-        "Chưa cập nhật" }}
+                            "Chưa cập nhật" }}
+                        </td>
+                        <td class="px-4 py-4">
+                            {{ item.storageCapacity ? formatNumber(item.storageCapacity) :
+                            "Chưa cập nhật" }}
                         </td>
                         <td class="px-4 py-4">
                             {{ item.price ? formatNumber(item.price) :
-        "Chưa cập nhật" }}
+                            "Chưa cập nhật" }}
                         </td>
                         <!-- <td class="px-4 py-4">
                             {{ item.color ? item.color :
@@ -117,13 +128,16 @@
                                 "Chưa cập nhật" }}
                         </td> -->
                         <td class="px-4 py-4">
-                            {{ item.downloads ? item.downloads :
+                            {{ item.downloads ? formatNumber(item.downloads) :
                                 "Chưa cập nhật" }}
                         </td>
                         <!-- <td class="px-4 py-4">
                             <img :src="item.imageLinks[0] ? item.imageLinks[0] :
                                 'Chưa cập nhật'" alt="">
                         </td> -->
+                        <td class="px-4 py-4">
+                            {{ "Chưa cập nhật" }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -185,13 +199,13 @@ const retriveProducts = async () => {
 }
 
 const retrieveApplicationListByDeveloperId = async () => {
-  try {
-    const developerId = JSON.parse(localStorage.getItem('developer')).id;
-    const response = await ApplicationService.getAllByDeveloperId(developerId);
-    applicationListResponse.value = response.data;
-  } catch (error) {
-    console.log(error);
-  }
+    try {
+        const developerId = JSON.parse(localStorage.getItem('developer')).id;
+        const response = await ApplicationService.getAllByDeveloperId(developerId);
+        applicationListResponse.value = response.data;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 onBeforeMount(async () => {

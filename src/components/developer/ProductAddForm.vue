@@ -10,7 +10,7 @@
                                 <label for="productName">Tên ứng dụng:</label>
                                 <input v-model="productForAdding.name" type="productName" name="productName"
                                     placeholder=""
-                                    class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" />
+                                    class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" />
                             </div>
                         </div>
                         <div class="grid-view">
@@ -18,7 +18,7 @@
                                 <label for="productPrice">Giá:</label>
                                 <input v-model="productForAdding.price" type="number" id="productPrice"
                                     name="productPrice" required placeholder=""
-                                    class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6" />
+                                    class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" />
                             </div>
                             <!-- <div class="grid-column six-twelfths">
                                 <label for="productSalePercent">Giảm giá (%):</label>
@@ -44,7 +44,7 @@
                                 <Menu as="div" class="frorelative inline-block text-left w-full ">
                                     <div>
                                         <MenuButton
-                                            class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-extrabold">
+                                            class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-medium">
                                             {{ selectedFrameworkOption }}
                                             <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                                         </MenuButton>
@@ -63,19 +63,19 @@
                                                 <!-- <div class="relative p-[9px]"> -->
                                                 <MenuItem v-for="(framework, index) in frameworkList"
                                                     v-slot="{ active }">
-                                                <a href="#"
-                                                    :class="[active ? 'bg-gray-100 text-gray-900 outline-none' : 'text-gray-700', 'block px-4 py-2 text-sm']"
+                                                <a href="#" class="font-medium"
+                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
                                                     @click="selectFrameworkOption(framework)">
                                                     {{ framework }}
                                                 </a>
                                                 </MenuItem>
-                                                <form method="POST" action="#">
+                                                <!-- <form method="POST" action="#">
                                                     <MenuItem v-slot="{ active }">
                                                     <button type="submit"
                                                         :class="[active ? 'bg-gray-100 text-gray-900 outline-none' : 'text-gray-700', 'block w-full px-4 py-2 text-left text-sm']">Sign
                                                         out</button>
                                                     </MenuItem>
-                                                </form>
+                                                </form> -->
                                                 <!-- </div> -->
                                             </MenuItems>
                                         </div>
@@ -89,8 +89,8 @@
                                 <Menu as="div" class="frorelative inline-block text-left w-full ">
                                     <div>
                                         <MenuButton
-                                            class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-extrabold">
-                                            {{ selectedFrameworkOption }}
+                                            class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-medium">
+                                            {{ selectedCategoryOption }}
                                             <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                                         </MenuButton>
                                     </div>
@@ -106,21 +106,21 @@
                                             <MenuItems
                                                 class="custom-scrollbar absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-36 overflow-y-auto">
                                                 <!-- <div class="relative p-[9px]"> -->
-                                                <MenuItem v-for="(framework, index) in frameworkList"
+                                                <MenuItem v-for="(category, index) in categoryList"
                                                     v-slot="{ active }">
-                                                <a href="#"
-                                                    :class="[active ? 'bg-gray-100 text-gray-900 outline-none' : 'text-gray-700', 'block px-4 py-2 text-sm']"
-                                                    @click="selectFrameworkOption(framework)">
-                                                    {{ framework }}
+                                                <a href="#" class="font-medium"
+                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
+                                                    @click="selectCategoryOption(category)">
+                                                    {{ category }}
                                                 </a>
                                                 </MenuItem>
-                                                <form method="POST" action="#">
+                                                <!-- <form method="POST" action="#">
                                                     <MenuItem v-slot="{ active }">
                                                     <button type="submit"
                                                         :class="[active ? 'bg-gray-100 text-gray-900 outline-none' : 'text-gray-700', 'block w-full px-4 py-2 text-left text-sm']">Sign
                                                         out</button>
                                                     </MenuItem>
-                                                </form>
+                                                </form> -->
                                                 <!-- </div> -->
                                             </MenuItems>
                                         </div>
@@ -167,7 +167,7 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import ProductService from "@/services/application.service";
 import ApplicationFrameworkService from "@/services/application_framework.service.ts"
-import ApplicationCategoryFrameworkService from "@/services/application_category.service.ts"
+import ApplicationCategoryService from "@/services/application_category.service.ts"
 
 import axios from 'axios';
 
@@ -199,8 +199,6 @@ const categoryList = ref([]);
 const selectedFrameworkOption = ref('-');
 const selectedCategoryOption = ref('-');
 
-
-
 const getFrameworkList = async () => {
     const response = await ApplicationFrameworkService.getFrameworkList();
     frameworkList.value = response.map(framework => framework.name);
@@ -208,6 +206,15 @@ const getFrameworkList = async () => {
 
 const selectFrameworkOption = (framework) => {
     selectedFrameworkOption.value = framework;
+}
+
+const getCategoryList = async () => {
+    const response = await ApplicationCategoryService.getCategoryList();
+    categoryList.value = response.map(category => category.name);
+}
+
+const selectCategoryOption = (category) => {
+    selectedCategoryOption.value = category;
 }
 
 const closeProductAddForm = () => {
@@ -238,6 +245,7 @@ const updateProduct = async () => {
 
 onBeforeMount(async () => {
     await getFrameworkList();
+    await getCategoryList();
 });
 </script>
 
