@@ -1,4 +1,5 @@
 <template>
+    <!-- <ThemeSwitcher /> -->
     <div class="w-full h-full flex mt-6">
         <div class="w-1/3">
             <div class="my-2 text-center">
@@ -65,6 +66,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeMount } from 'vue';
 import axios from 'axios';
+// import ThemeSwitcher from '@/components/common/ThemeSwitcher.vue'
 
 interface DeveloperInfo {
     studentId: string;

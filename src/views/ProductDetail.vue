@@ -120,12 +120,12 @@
                                                 </div>
                                             </div>
                                         </div> -->
-                                        <div class="aside-tag-container">
+                                        <div v-if="application.applicationType" class="aside-tag-container">
                                             <div class="aside-tag-container-lv2">
                                                 <div class="aside-tag-container-lv3">
                                                     <span>
                                                         <div class="aside-tag-container-lv4">
-                                                            <span>{{ getApplicationType(application.type) }}</span>
+                                                            <span>{{ application.applicationType.name }}</span>
                                                         </div>
                                                     </span>
                                                 </div>
@@ -420,8 +420,8 @@ onMounted(() => {
     init();
 })
 
-const getApplicationType = (type) => {
-    return APPLICATION_TYPE[type] || '';  // Default to 'Unknown' if not found
+const getApplicationType = () => {
+    return application.applicationType.name;
 }
 
 const route = useRoute();

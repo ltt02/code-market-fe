@@ -34,5 +34,6 @@ declare module 'vue' {
     SearchInput: typeof import('./src/components/common/SearchInput.vue')['default']
     StaffManagement: typeof import('./src/components/developer/StaffManagement.vue')['default']
     Statistic: typeof import('./src/components/developer/Statistic.vue')['default']
+    ThemeSwitcher: typeof import('./src/components/common/ThemeSwitcher.vue')['default']
   }
 }

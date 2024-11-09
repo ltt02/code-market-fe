@@ -588,6 +588,12 @@ video {
   }
 }
 
+@media (min-width: 1436px) {
+  .container {
+    max-width: 1436px;
+  }
+}
+
 .visible {
   visibility: visible;
 }

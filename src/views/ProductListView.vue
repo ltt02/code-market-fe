@@ -86,7 +86,7 @@ const filters = ref([
     options: []
   },
   {
-    name: 'Thể loại',
+    name: 'Lĩnh vực',
     options: ['Sách, Khóa học', 'Trò chuyện', 'Crypto & Blockchain', 'Công cụ phát triển', 'Thương mại điện tử', 'Sự kiện & Từ thiện']
   },
   {

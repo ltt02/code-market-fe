@@ -69,7 +69,7 @@
         <div class="relative overflow-x-auto custom-scrollbar" style="max-height: 500px;">
             <table id="table-data" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead
-                    class="fixed-header font-sans text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
+                    class="fixed-header font-sans text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400 text-center">
                     <tr>
                         <th scope="col" class="px-4 py-3">
                             ID
@@ -77,13 +77,16 @@
                         <th scope="col" class="px-4 py-3">
                             Tên ứng dụng
                         </th>
-                        <th scope="col" class="px-4 py-3">
+                        <th scope="col" class="px-4 py-3 text-right">
                             Dung lượng (MB)
                         </th>
-                        <th scope="col" class="px-4 py-3">
+                        <th scope="col" class="px-4 py-3 text-right">
                             Giá
                         </th>
                         <th scope="col" class="px-4 py-3">
+                            Đánh giá trung bình
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-right">
                             Lượt tải
                         </th>
                         <th scope="col" class="px-4 py-3">
@@ -94,9 +97,10 @@
                 <tbody>
                     <tr v-for="(item, index) in applicationListResponse" :key="index" @click="selectProduct(item)"
                         class="row-data border-b dark:bg-gray-800 cursor-pointer">
-                        <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <th scope="row"
+                            class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">
                             {{ item.id ? item.id :
-                            "Chưa cập nhật" }}
+                                "Chưa cập nhật" }}
                         </th>
                         <!-- <td class="px-4 py-4 w-1/10">
                             {{ item.product.id ? item.product.id :
@@ -105,15 +109,15 @@
                         <!-- <td class="px-6 py-4 overflow-x-auto custom-scrollbar-cell" style="max-width: 150px"> -->
                         <td class="px-4 py-4">
                             {{ item.name ? item.name :
-                            "Chưa cập nhật" }}
+                                "Chưa cập nhật" }}
                         </td>
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 text-right">
                             {{ item.storageCapacity ? formatNumber(item.storageCapacity) :
-                            "Chưa cập nhật" }}
+                                "Chưa cập nhật" }}
                         </td>
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 text-right">
                             {{ item.price ? formatNumber(item.price) :
-                            "Chưa cập nhật" }}
+                                "Chưa cập nhật" }}
                         </td>
                         <!-- <td class="px-4 py-4">
                             {{ item.color ? item.color :
@@ -127,7 +131,12 @@
                             {{ item.quantity ? item.quantity :
                                 "Chưa cập nhật" }}
                         </td> -->
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-4 text-center">
+                            {{ item.ratings ? item.ratings :
+                                "Chưa cập nhật" }}
+                            <span class="fa fa-star text-yellow-500"></span>
+                        </td>
+                        <td class="px-4 py-4 text-right">
                             {{ item.downloads ? formatNumber(item.downloads) :
                                 "Chưa cập nhật" }}
                         </td>
@@ -135,20 +144,31 @@
                             <img :src="item.imageLinks[0] ? item.imageLinks[0] :
                                 'Chưa cập nhật'" alt="">
                         </td> -->
-                        <td class="px-4 py-4">
-                            {{ "Chưa cập nhật" }}
+                        <td class="px-4 py-4 text-green-500 text-center
+                        .">
+                            {{ "Đã được chấp thuận" }}
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
+    <DataTable :value="applicationListResponse.value" tableStyle="min-width: 50rem">
+        <Column field="id" header="Id"></Column>
+        <Column field="name" header="Tên ứng dụng"></Column>
+        <Column field="size" header="Dung lượng (Mb)"></Column>
+        <Column field="price" header="Giá"></Column>
+    </DataTable>
 </template>
 
 <script setup lang="ts">
 import ProductAddForm from '@/components/developer/ProductAddForm.vue';
 import ProductUpdateForm from '@/components/developer/ProductUpdateForm.vue';
 import ProductDetails from '@/components/developer/ProductDetails.vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';
+import Row from 'primevue/row';
 import { ref, onBeforeMount } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import axios from 'axios';
@@ -161,8 +181,8 @@ interface ApplicationObject {
     price: number,
     downloads: number,
     storageCapacity: number,
-    applicationCategoryList: [],
-    applicationFramework: String,
+    applicationCategory: any,
+    applicationFramework: any,
 }
 
 const applicationListResponse = ref<ApplicationObject[] | null>(null);
@@ -172,8 +192,8 @@ const selectedProduct = ref<ApplicationObject>({
     price: 0,
     downloads: 0,
     storageCapacity: 0,
-    applicationCategoryList: [],
-    applicationFramework: '',
+    applicationCategory: null,
+    applicationFramework: null,
 });
 
 const props = defineProps({
@@ -190,7 +210,7 @@ const formatNumber = (number) => {
 
 const retriveProducts = async () => {
     try {
-        const response = await axios.get(`http://localhost:8080/products`);
+        const response = await axios.get(`http://localhost:8080/applications`);
         products.value = response.data;
         currentTotalProduct.value = products.value?.length!;
     } catch (error) {

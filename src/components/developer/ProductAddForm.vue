@@ -8,33 +8,40 @@
                         <div class="grid-view">
                             <div class="grid-column">
                                 <label for="productName">Tên ứng dụng:</label>
-                                <input v-model="productForAdding.name" type="productName" name="productName"
+                                <input v-model="applicationForAdding.name" type="productName" name="productName"
                                     placeholder=""
                                     class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" />
                             </div>
                         </div>
                         <div class="grid-view">
                             <div class="grid-column six-twelfths">
-                                <label for="productPrice">Giá:</label>
-                                <input v-model="productForAdding.price" type="number" id="productPrice"
+                                <label for="productPrice">Giá (VND):</label>
+                                <input v-model="applicationForAdding.price" type="number" id="productPrice"
                                     name="productPrice" required placeholder=""
                                     class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" />
                             </div>
-                            <!-- <div class="grid-column six-twelfths">
-                                <label for="productSalePercent">Giảm giá (%):</label>
-                                <input v-model="productForAdding.salePercent" type="number" id="productSalePercent" name="productSalePercent" required
-                                    placeholder="" class="form-control" />
-                            </div> -->
+                            <div class="grid-column six-twelfths">
+                                <label for="applicationThumbnail">File mã nguồn (.zip):</label>
+                                <input type="file" accept=".zip*" id="applicationThumbnail" name="applicationThumbnail"
+                                    required placeholder="" class="font-medium" />
+                            </div>
+                        </div>
+                        <div class="grid-view">
+                            <div class="grid-column">
+                                <label for="applicationThumbnail">Hình ảnh minh họa:</label>
+                                <input type="file" accept="image/*" id="applicationThumbnail"
+                                    name="applicationThumbnail" required placeholder="" class="font-medium" />
+                            </div>
                         </div>
                         <!-- <div class="grid-view">
                             <div class="grid-column six-twelfths">
                                 <label for="productType">Chất liệu:</label>
-                                <input v-model="productForAdding.material" type="text" id="productType"
+                                <input v-model="applicationForAdding.material" type="text" id="productType"
                                     name="productType" required placeholder="" class="form-control" />
                             </div>
                             <div class="grid-column six-twelfths">
                                 <label for="productType">Loại:</label>
-                                <input v-model="productForAdding.type" type="text" id="productType" name="productType"
+                                <input v-model="applicationForAdding.type" type="text" id="productType" name="productType"
                                     required placeholder="" class="form-control" />
                             </div>
                         </div> -->
@@ -45,7 +52,7 @@
                                     <div>
                                         <MenuButton
                                             class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-medium">
-                                            {{ selectedFrameworkOption }}
+                                            {{ selectedFrameworkOption.name }}
                                             <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                                         </MenuButton>
                                     </div>
@@ -66,7 +73,7 @@
                                                 <a href="#" class="font-medium"
                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
                                                     @click="selectFrameworkOption(framework)">
-                                                    {{ framework }}
+                                                    {{ framework.name }}
                                                 </a>
                                                 </MenuItem>
                                                 <!-- <form method="POST" action="#">
@@ -90,7 +97,7 @@
                                     <div>
                                         <MenuButton
                                             class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-medium">
-                                            {{ selectedCategoryOption }}
+                                            {{ selectedCategoryOption.name }}
                                             <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                                         </MenuButton>
                                     </div>
@@ -106,12 +113,11 @@
                                             <MenuItems
                                                 class="custom-scrollbar absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-36 overflow-y-auto">
                                                 <!-- <div class="relative p-[9px]"> -->
-                                                <MenuItem v-for="(category, index) in categoryList"
-                                                    v-slot="{ active }">
+                                                <MenuItem v-for="(category, index) in categoryList" v-slot="{ active }">
                                                 <a href="#" class="font-medium"
                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
                                                     @click="selectCategoryOption(category)">
-                                                    {{ category }}
+                                                    {{ category.name }}
                                                 </a>
                                                 </MenuItem>
                                                 <!-- <form method="POST" action="#">
@@ -130,8 +136,15 @@
                                 </Menu>
                             </div>
                         </div>
+                        <div class="grid-view">
+                            <div class="grid-column">
+                                <label for="productType">Mô tả:</label>
+                                <Editor v-model="applicationForAdding.description" editorStyle="height: 150px"
+                                    class="font-medium" />
+                            </div>
+                        </div>
                     </div>
-                    <button v-if="productStore.isShowAddFormClick" @click.prevent="addProduct"
+                    <button v-if="productStore.isShowAddFormClick" @click.prevent="addApplication"
                         class="mr-2 bg-green-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded w-full mt-3">
                         Thêm
                     </button>
@@ -163,6 +176,7 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+import Editor from 'primevue/editor';
 import { ref, computed, onBeforeMount } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import ProductService from "@/services/application.service";
@@ -179,15 +193,29 @@ const props = defineProps({
     }
 })
 
-interface ProductObject {
+interface ApplicationObject {
+    id: number,
     name: String,
     price: number,
-    salePercent: number,
-    type: String,
-    material: String,
+    storageCapacity: number,
+    applicationCategoryId: number,
+    applicationFrameworkId: number,
+    description: any,
+    sourceCode: any,
+    images: any,
 }
 
-const productForAdding = ref<ProductObject>({ name: '', price: 0, salePercent: 0, material: '', type: '' });
+const applicationForAdding = ref<ApplicationObject>({
+    id: 0,
+    name: '',
+    price: 0,
+    storageCapacity: 0,
+    applicationCategoryId: 0,
+    applicationFrameworkId: 0,
+    description: '',
+    sourceCode: '',
+    images: [],
+});
 
 const productStore = useProductStore();
 
@@ -196,12 +224,12 @@ const showSidebar = ref(props.isShowSideBar);
 const frameworkList = ref([]);
 const categoryList = ref([]);
 
-const selectedFrameworkOption = ref('-');
-const selectedCategoryOption = ref('-');
+const selectedFrameworkOption = ref({ id: 0, name: '-' });
+const selectedCategoryOption = ref({ id: 0, name: '-' });
 
 const getFrameworkList = async () => {
     const response = await ApplicationFrameworkService.getFrameworkList();
-    frameworkList.value = response.map(framework => framework.name);
+    frameworkList.value = response;
 }
 
 const selectFrameworkOption = (framework) => {
@@ -210,7 +238,7 @@ const selectFrameworkOption = (framework) => {
 
 const getCategoryList = async () => {
     const response = await ApplicationCategoryService.getCategoryList();
-    categoryList.value = response.map(category => category.name);
+    categoryList.value = response;
 }
 
 const selectCategoryOption = (category) => {
@@ -221,9 +249,11 @@ const closeProductAddForm = () => {
     productStore.setIsShowAddFormClick(false);
 }
 
-const addProduct = async () => {
+const addApplication = async () => {
     try {
-        const response = await axios.post("http://localhost:8080/products", productForAdding.value);
+        applicationForAdding.value.applicationCategoryId = selectCategoryOption.id;
+        applicationForAdding.value.applicationFrameworkId = selectFrameworkOption.id;
+        const response = await axios.post("http://localhost:8080/applications", applicationForAdding.value);
         closeProductAddForm();
         emit('add-product-done');
         return response.data;
@@ -234,7 +264,7 @@ const addProduct = async () => {
 
 const updateProduct = async () => {
     try {
-        const response = await axios.put("http://localhost:8080/products", productForAdding.value);
+        const response = await axios.put("http://localhost:8080/products", applicationForAdding.value);
         closeProductAddForm();
         emit('add-product-done');
         return response.data;
