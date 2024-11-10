@@ -61,12 +61,16 @@
                             class="mr-2 bg-red-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
                             Xóa ứng dụng
                         </button>
+                        <button @click="exportCSV($event)"
+                            class="mr-2 bg-purple-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
+                            Xuất file
+                        </button>
                     </div>
                 </div>
-                <div class="flex items-end mt-2">Tổng số: {{ currentTotalProduct }}</div>
+                <div class="flex items-end mt-2">Tổng số: {{ currentTotalApplications }}</div>
             </div>
         </div>
-        <div class="relative overflow-x-auto custom-scrollbar" style="max-height: 500px;">
+        <!-- <div class="relative overflow-x-auto custom-scrollbar" style="max-height: 500px;">
             <table id="table-data" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead
                     class="fixed-header font-sans text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400 text-center">
@@ -102,11 +106,6 @@
                             {{ item.id ? item.id :
                                 "Chưa cập nhật" }}
                         </th>
-                        <!-- <td class="px-4 py-4 w-1/10">
-                            {{ item.product.id ? item.product.id :
-                                "Chưa cập nhật" }}
-                        </td> -->
-                        <!-- <td class="px-6 py-4 overflow-x-auto custom-scrollbar-cell" style="max-width: 150px"> -->
                         <td class="px-4 py-4">
                             {{ item.name ? item.name :
                                 "Chưa cập nhật" }}
@@ -119,18 +118,6 @@
                             {{ item.price ? formatNumber(item.price) :
                                 "Chưa cập nhật" }}
                         </td>
-                        <!-- <td class="px-4 py-4">
-                            {{ item.color ? item.color :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ item.size ? item.size :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ item.quantity ? item.quantity :
-                                "Chưa cập nhật" }}
-                        </td> -->
                         <td class="px-4 py-4 text-center">
                             {{ item.ratings ? item.ratings :
                                 "Chưa cập nhật" }}
@@ -140,10 +127,6 @@
                             {{ item.downloads ? formatNumber(item.downloads) :
                                 "Chưa cập nhật" }}
                         </td>
-                        <!-- <td class="px-4 py-4">
-                            <img :src="item.imageLinks[0] ? item.imageLinks[0] :
-                                'Chưa cập nhật'" alt="">
-                        </td> -->
                         <td class="px-4 py-4 text-green-500 text-center
                         .">
                             {{ "Đã được chấp thuận" }}
@@ -151,14 +134,100 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </div> -->
+        <DataTable v-model:selection="selectedApplication" :value="applicationListResponse"
+            tableStyle="min-width: 50rem" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" sortable
+            sortMode="multiple" removableSort :loading="loading" scrollable ref="dt">
+            <!-- <template #header>
+                <div class="flex justify-end">
+                    <IconField>
+                        <InputIcon>
+                            <i class="pi pi-search"></i>
+                        </InputIcon>
+                        <InputText v-model="filters['global'].value" placeholder="Tìm theo từ khóa" />
+                    </IconField>
+                </div>
+            </template> -->
+            <template #empty> Không tìm thấy ứng dụng. </template>
+            <template #loading> Đang tải. Vui lòng chờ. </template>
+            <Column selectionMode="single" headerStyle="width: 3rem"></Column>
+            <Column sortable field="id" header="ID">
+
+            </Column>
+            <Column sortable field="name" header="Tên ứng dụng">
+                <template #body="{ data }">
+                    {{ data.name }}
+                </template>
+                <template #filter="{ filterModel, filterCallback }">
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+                        placeholder="Tìm theo tên" />
+                </template>
+            </Column>
+            <Column sortable field="storageCapacity" header="Dung lượng (Mb)" bodyStyle="text-align:right">
+                <template #header>
+                    <span class="flex-1 text-right"></span>
+                </template>
+                <template #body="slotProps">
+                    {{ formatNumber(slotProps.data.storageCapacity) }}
+                </template>
+                <template #filter="{ filterModel, filterCallback }">
+                    <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
+                        placeholder="Search by country" />
+                </template>
+            </Column>
+            <Column sortable field="price" header="Giá" bodyStyle="text-align:right">
+                <template #header>
+                    <span class="flex-1 text-right"></span>
+                </template>
+                <template #body="slotProps">
+                    {{ formatNumber(slotProps.data.price) }}
+                </template>
+                <!-- <template #filter="{ filterModel, filterCallback }">
+                    <MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="representatives"
+                        optionLabel="name" placeholder="Any" style="min-width: 14rem" :maxSelectedLabels="1">
+                        <template #option="slotProps">
+                            <div class="flex items-center gap-2">
+                                <img :alt="slotProps.option.name"
+                                    :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`"
+                                    style="width: 32px" />
+                                <span>{{ slotProps.option.name }}</span>
+                            </div>
+                        </template>
+                    </MultiSelect>
+                </template> -->
+            </Column>
+            <Column sortable field="ratings" header="Đánh giá trung bình" bodyStyle="text-align:right">
+                <template #header>
+                    <span class="flex-1 text-right"></span>
+                </template>
+                <template #body="slotProps">
+                    {{ slotProps.data.ratings.toFixed(1) }}
+                    <span class="fa fa-star text-yellow-500"></span>
+                </template>
+                <!-- <template #filter="{ filterModel, filterCallback }">
+                    <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses"
+                        placeholder="Select One" style="min-width: 12rem" :showClear="true">
+                        <template #option="slotProps">
+                            <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                        </template>
+                    </Select>
+                </template> -->
+            </Column>
+            <Column sortable field="status" header="Trạng thái">
+                <template #body="slotProps">
+                    <Tag :value="getStatus(slotProps.data.status)" :severity="getSeverity(slotProps.data.status)" />
+                </template>
+                <!-- <template #filter="{ filterModel, filterCallback }">
+                    <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses"
+                        placeholder="Select One" style="min-width: 12rem" :showClear="true">
+                        <template #option="slotProps">
+                            <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                        </template>
+                    </Select>
+                </template> -->
+            </Column>
+        </DataTable>
     </div>
-    <DataTable :value="applicationListResponse.value" tableStyle="min-width: 50rem">
-        <Column field="id" header="Id"></Column>
-        <Column field="name" header="Tên ứng dụng"></Column>
-        <Column field="size" header="Dung lượng (Mb)"></Column>
-        <Column field="price" header="Giá"></Column>
-    </DataTable>
 </template>
 
 <script setup lang="ts">
@@ -169,6 +238,16 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';
 import Row from 'primevue/row';
+import Rating from 'primevue/rating';
+import Tag from 'primevue/tag';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import MultiSelect from 'primevue/multiselect';
+import { FilterMatchMode } from '@primevue/core/api';
+import ApplicationService from "@/services/application.service.js"
+import { APPLICATION_APPROVAL_STATUS } from '@/const.js';
 import { ref, onBeforeMount } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import axios from 'axios';
@@ -202,7 +281,69 @@ const props = defineProps({
     }
 })
 
-const currentTotalApplication = ref<number>(0);
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    representative: { value: null, matchMode: FilterMatchMode.IN },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS },
+    verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+})
+
+const representatives = ref([
+    { name: 'Amy Elsner', image: 'amyelsner.png' },
+    { name: 'Anna Fali', image: 'annafali.png' },
+    { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+    { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
+    { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
+    { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+    { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
+    { name: 'Onyama Limba', image: 'onyamalimba.png' },
+    { name: 'Stephen Shaw', image: 'stephenshaw.png' },
+    { name: 'XuXue Feng', image: 'xuxuefeng.png' }
+])
+
+const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
+
+const loading = ref(false);
+
+const selectedApplication = ref<ApplicationObject>();
+const currentTotalApplications = ref<number>(0);
+const dt = ref();
+const exportCSV = () => {
+    dt.value.exportCSV();
+};
+const getStatus = (statusId) => {
+    switch (statusId) {
+        case APPLICATION_APPROVAL_STATUS.REQUESTING:
+            return "Đang chờ được chấp thuận";
+            break;
+        case APPLICATION_APPROVAL_STATUS.APPROVED:
+            return "Đã được chấp thuận";
+            break;
+        case APPLICATION_APPROVAL_STATUS.REJECTED:
+            return "Đã bị từ chối";
+            break;
+        default:
+            break;
+    }
+}
+
+const getSeverity = (statusId) => {
+    switch (statusId) {
+        case APPLICATION_APPROVAL_STATUS.REQUESTING:
+            return "warn";
+            break;
+        case APPLICATION_APPROVAL_STATUS.APPROVED:
+            return "success";
+            break;
+        case APPLICATION_APPROVAL_STATUS.REJECTED:
+            return "danger";
+            break;
+        default:
+            break;
+    }
+}
 
 const formatNumber = (number) => {
     return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -212,7 +353,7 @@ const retriveProducts = async () => {
     try {
         const response = await axios.get(`http://localhost:8080/applications`);
         products.value = response.data;
-        currentTotalProduct.value = products.value?.length!;
+        currentTotalApplications.value = products.value?.length!;
     } catch (error) {
         console.error('Lỗi khi lấy thông tin sản phẩm', error);
     }
@@ -223,15 +364,16 @@ const retrieveApplicationListByDeveloperId = async () => {
         const developerId = JSON.parse(localStorage.getItem('developer')).id;
         const response = await ApplicationService.getAllByDeveloperId(developerId);
         applicationListResponse.value = response.data;
+        currentTotalApplications.value = applicationListResponse.value?.length!;
     } catch (error) {
         console.log(error);
     }
 }
 
 onBeforeMount(async () => {
-    // retrieveApplicationListByDeveloperId();
-    const developer = JSON.parse(localStorage.getItem('developer'))
-    applicationListResponse.value = developer.applicationList;
+    await retrieveApplicationListByDeveloperId();
+    // const developer = JSON.parse(localStorage.getItem('developer'))
+    // applicationListResponse.value = developer.applicationList;
 });
 const isNotEnteredID = ref(false);
 const isUpdatedOK = ref(false);
@@ -346,6 +488,13 @@ const deteleProduct = async () => {
 
 </script>
 <style scoped>
+.column-text-right {
+    .p-datatable-column-header-content {
+        text-align: right;
+        display: block !important;
+    }
+}
+
 .w-1\/8 {
     width: 12.5%;
 }
