@@ -1,8 +1,8 @@
 <template>
     <div class="product-form__float" :class="productStore.isShowAddFormClick ? 'is-active' : ''">
         <div class="container flex justify-center items-center" :class="{ 'max-w-full': !props.isShowSidebar }">
-            <div class="product-form-container">
-                <div class="title text-center">Thêm ứng dụng</div>
+            <div class="product-form-container custom-scrollbar">
+                <div class="title text-center m-0">Thêm ứng dụng</div>
                 <div>
                     <div id="customer-info-block">
                         <div class="grid-view">
@@ -16,21 +16,32 @@
                         <div class="grid-view">
                             <div class="grid-column six-twelfths">
                                 <label for="productPrice">Giá (VND):</label>
-                                <input v-model="applicationForAdding.price" type="number" id="productPrice"
+                                <InputNumber v-model="applicationForAdding.price" inputId="integeronly" fluid />
+<!--  -->
+                                <!-- <input v-model="applicationForAdding.price" type="number" id="productPrice"
                                     name="productPrice" required placeholder=""
-                                    class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" />
+                                    class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" /> -->
                             </div>
                             <div class="grid-column six-twelfths">
-                                <label for="applicationThumbnail">File mã nguồn (.zip):</label>
-                                <input type="file" accept=".zip*" id="applicationThumbnail" name="applicationThumbnail"
-                                    required placeholder="" class="font-medium" />
+                                <label for="applicationSource">File mã nguồn (.zip):</label>
+                                <div class="flex items-center">
+                                    <FileUpload ref="" mode="basic" name="" url="" accept=".zip"
+                                        :maxFileSize="999999999999" @upload="onUpload" @select="onFileSelect"
+                                        chooseLabel="Thêm" />
+                                    <p v-if="selectedSource">{{ ": " + formatFileSize(selectedSource.size) }}</p>
+                                </div>
                             </div>
                         </div>
                         <div class="grid-view">
                             <div class="grid-column">
                                 <label for="applicationThumbnail">Hình ảnh minh họa:</label>
-                                <input type="file" accept="image/*" id="applicationThumbnail"
-                                    name="applicationThumbnail" required placeholder="" class="font-medium" />
+                                <FileUpload name="" url="/api/upload"
+                                    :multiple="true" accept="image/*" :maxFileSize="999999999999" chooseLabel="Thêm"
+                                    :showUploadButton="false" :showCancelButton="false" @select="handleImagesInputChange">
+                                    <template #empty>
+                                        <span>Bạn có thể kéo và thả file vào đây.</span>
+                                    </template>
+                                </FileUpload>
                             </div>
                         </div>
                         <!-- <div class="grid-view">
@@ -48,11 +59,27 @@
                         <div class="grid-view">
                             <div class="grid-column six-twelfths">
                                 <label for="productType">Framework:</label>
+                                <MultiSelect v-model="selectedFrameworkOptionList" :options="frameworkList"
+                                    optionLabel="name" filter placeholder="Chọn framework:" :maxSelectedLabels="4"
+                                    class="w-full font-medium" overlayClass="custom-scrollbar"
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
+                            </div>
+                            <div class="grid-column six-twelfths">
+                                <label for="productType">Lĩnh vực:</label>
+                                <MultiSelect v-model="selectedCategoryOptionList" :options="categoryList"
+                                    optionLabel="name" filter placeholder="Chọn lĩnh vực:" :maxSelectedLabels="4"
+                                    class="w-full font-medium" overlayClass="custom-scrollbar"
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
+                            </div>
+                        </div>
+                        <div class="grid-view">
+                            <div class="grid-column six-twelfths">
+                                <label for="productType">Loại ứng dụng:</label>
                                 <Menu as="div" class="frorelative inline-block text-left w-full ">
                                     <div>
                                         <MenuButton
                                             class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-medium">
-                                            {{ selectedFrameworkOption.name }}
+                                            {{ selectedTypeOption.name }}
                                             <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
                                         </MenuButton>
                                     </div>
@@ -68,22 +95,13 @@
                                             <MenuItems
                                                 class="custom-scrollbar absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-36 overflow-y-auto">
                                                 <!-- <div class="relative p-[9px]"> -->
-                                                <MenuItem v-for="(framework, index) in frameworkList"
-                                                    v-slot="{ active }">
+                                                <MenuItem v-for="(type, index) in typeList" v-slot="{ active }">
                                                 <a href="#" class="font-medium"
                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
-                                                    @click="selectFrameworkOption(framework)">
-                                                    {{ framework.name }}
+                                                    @click="selectTypeOption(type)">
+                                                    {{ type.name }}
                                                 </a>
                                                 </MenuItem>
-                                                <!-- <form method="POST" action="#">
-                                                    <MenuItem v-slot="{ active }">
-                                                    <button type="submit"
-                                                        :class="[active ? 'bg-gray-100 text-gray-900 outline-none' : 'text-gray-700', 'block w-full px-4 py-2 text-left text-sm']">Sign
-                                                        out</button>
-                                                    </MenuItem>
-                                                </form> -->
-                                                <!-- </div> -->
                                             </MenuItems>
                                         </div>
 
@@ -92,57 +110,21 @@
                                 </Menu>
                             </div>
                             <div class="grid-column six-twelfths">
-                                <label for="productType">Lĩnh vực:</label>
-                                <Menu as="div" class="frorelative inline-block text-left w-full ">
-                                    <div>
-                                        <MenuButton
-                                            class="inline-flex justify-between w-full gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 h-10 border border-solid outline-[light-gray] font-medium">
-                                            {{ selectedCategoryOption.name }}
-                                            <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                                        </MenuButton>
-                                    </div>
-
-
-                                    <transition enter-active-class="transition ease-out duration-100"
-                                        enter-from-class="transform opacity-0 scale-95"
-                                        enter-to-class="transform opacity-100 scale-100"
-                                        leave-active-class="transition ease-in duration-75"
-                                        leave-from-class="transform opacity-100 scale-100"
-                                        leave-to-class="transform opacity-0 scale-95">
-                                        <div class="relative">
-                                            <MenuItems
-                                                class="custom-scrollbar absolute left-0 z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-36 overflow-y-auto">
-                                                <!-- <div class="relative p-[9px]"> -->
-                                                <MenuItem v-for="(category, index) in categoryList" v-slot="{ active }">
-                                                <a href="#" class="font-medium"
-                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
-                                                    @click="selectCategoryOption(category)">
-                                                    {{ category.name }}
-                                                </a>
-                                                </MenuItem>
-                                                <!-- <form method="POST" action="#">
-                                                    <MenuItem v-slot="{ active }">
-                                                    <button type="submit"
-                                                        :class="[active ? 'bg-gray-100 text-gray-900 outline-none' : 'text-gray-700', 'block w-full px-4 py-2 text-left text-sm']">Sign
-                                                        out</button>
-                                                    </MenuItem>
-                                                </form> -->
-                                                <!-- </div> -->
-                                            </MenuItems>
-                                        </div>
-
-                                    </transition>
-
-                                </Menu>
+                                <label for="productType">Nền tảng:</label>
+                                <MultiSelect v-model="selectedPlatformOptionList" :options="platformList"
+                                    optionLabel="name" filter placeholder="Chọn platform:" :maxSelectedLabels="4"
+                                    class="w-full font-medium" overlayClass="custom-scrollbar"
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
                             </div>
                         </div>
                         <div class="grid-view">
                             <div class="grid-column">
                                 <label for="productType">Mô tả:</label>
-                                <Editor v-model="applicationForAdding.description" editorStyle="height: 150px"
+                                <Editor v-model="applicationForAdding.description" editorStyle="height: 120px"
                                     class="font-medium" />
                             </div>
                         </div>
+
                     </div>
                     <button v-if="productStore.isShowAddFormClick" @click.prevent="addApplication"
                         class="mr-2 bg-green-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded w-full mt-3">
@@ -177,11 +159,16 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 import Editor from 'primevue/editor';
+import FileUpload from 'primevue/fileupload';
+import MultiSelect from 'primevue/multiselect';
+import InputNumber from 'primevue/inputnumber';
 import { ref, computed, onBeforeMount } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import ProductService from "@/services/application.service";
 import ApplicationFrameworkService from "@/services/application_framework.service.ts"
 import ApplicationCategoryService from "@/services/application_category.service.ts"
+import ApplicationTypeService from "@/services/application_type.service.ts"
+import ApplicationpPlatformService from "@/services/application_platform.service.ts"
 
 import axios from 'axios';
 
@@ -194,26 +181,28 @@ const props = defineProps({
 })
 
 interface ApplicationObject {
-    id: number,
     name: String,
     price: number,
     storageCapacity: number,
-    applicationCategoryId: number,
-    applicationFrameworkId: number,
+    applicationCategoryList: any,
+    applicationFrameworkList: any,
+    applicationPlatformList: any,
+    applicationType: any,
     description: any,
-    sourceCode: any,
-    images: any,
+    sourceCode: File,
+    images: File[],
 }
 
 const applicationForAdding = ref<ApplicationObject>({
-    id: 0,
     name: '',
     price: 0,
     storageCapacity: 0,
-    applicationCategoryId: 0,
-    applicationFrameworkId: 0,
+    applicationCategoryList: [],
+    applicationFrameworkList: [],
+    applicationPlatformList: [],
+    applicationType: null,
     description: '',
-    sourceCode: '',
+    sourceCode: null,
     images: [],
 });
 
@@ -221,19 +210,23 @@ const productStore = useProductStore();
 
 const showSidebar = ref(props.isShowSideBar);
 
+const nextImgIndex = ref(0);
+
 const frameworkList = ref([]);
 const categoryList = ref([]);
+const platformList = ref([]);
+const typeList = ref([]);
+const thumbnailList = ref([]);
+const selectedSource = ref(null);
 
-const selectedFrameworkOption = ref({ id: 0, name: '-' });
-const selectedCategoryOption = ref({ id: 0, name: '-' });
+const selectedFrameworkOptionList = ref([]);
+const selectedCategoryOptionList = ref([]);
+const selectedPlatformOptionList = ref([]);
+const selectedTypeOption = ref({ id: 0, name: '-' });
 
 const getFrameworkList = async () => {
     const response = await ApplicationFrameworkService.getFrameworkList();
     frameworkList.value = response;
-}
-
-const selectFrameworkOption = (framework) => {
-    selectedFrameworkOption.value = framework;
 }
 
 const getCategoryList = async () => {
@@ -241,18 +234,59 @@ const getCategoryList = async () => {
     categoryList.value = response;
 }
 
-const selectCategoryOption = (category) => {
-    selectedCategoryOption.value = category;
+const getPlatformList = async () => {
+    const response = await ApplicationpPlatformService.getPlatformList();
+    platformList.value = response;
+}
+
+const getTypeList = async () => {
+    const response = await ApplicationTypeService.getTypeList();
+    typeList.value = response;
+}
+
+const selectTypeOption = (type) => {
+    selectedTypeOption.value = type;
 }
 
 const closeProductAddForm = () => {
     productStore.setIsShowAddFormClick(false);
 }
 
+// Handle file selection
+const onFileSelect = (event) => {
+    selectedSource.value = event.files[0]; // Get the first file only
+};
+
+// Format file size to KB, MB, etc.
+const formatFileSize = (size) => {
+    const units = ['bytes', 'KB', 'MB', 'GB'];
+    let unitIndex = 0;
+    let formattedSize = size;
+
+    while (formattedSize >= 1024 && unitIndex < units.length - 1) {
+        formattedSize /= 1024;
+        unitIndex++;
+    }
+
+    return `${formattedSize.toFixed(2)} ${units[unitIndex]}`;
+};
+
+const handleImagesInputChange = async (event) => {
+    const files = event.files;
+
+    for (let i = nextImgIndex.value; i < files.length; i++) {
+        thumbnailList.value.push(files[i]);
+        console.log(thumbnailList.value[i]);
+        nextImgIndex.value++;
+    }
+};
+
 const addApplication = async () => {
     try {
-        applicationForAdding.value.applicationCategoryId = selectCategoryOption.id;
-        applicationForAdding.value.applicationFrameworkId = selectFrameworkOption.id;
+        applicationForAdding.value.applicationFrameworkList = selectedFrameworkOptionList;
+        applicationForAdding.value.applicationCategoryList = selectedCategoryOptionList;
+        applicationForAdding.value.applicationPlatformList = selectedPlatformOptionList;
+        applicationForAdding.value.applicationType = selectedTypeOption;
         const response = await axios.post("http://localhost:8080/applications", applicationForAdding.value);
         closeProductAddForm();
         emit('add-product-done');
@@ -276,14 +310,37 @@ const updateProduct = async () => {
 onBeforeMount(async () => {
     await getFrameworkList();
     await getCategoryList();
+    await getPlatformList();
+    await getTypeList();
 });
 </script>
 
 <style>
+.p-fileupload-basic {
+    justify-content: start !important;
+}
+
+.p-multiselect-overlay.custom-scrollbar {
+    .p-multiselect-list-container::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+    }
+
+    .p-multiselect-list-container::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+
+    .p-multiselect-list-container::-webkit-scrollbar-track {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+    }
+}
+
 .title {
     font-size: 30px;
     font-weight: 700;
-    margin: 1rem 0 1rem;
+    margin: 1rem 0 0;
 }
 
 .grid-view {
@@ -358,7 +415,9 @@ onBeforeMount(async () => {
 } */
 
 .product-form-container {
+    overflow-y: scroll;
     position: relative;
+    height: 850px;
     width: 800px;
     padding: 20px;
     border: 1px solid #ccc;

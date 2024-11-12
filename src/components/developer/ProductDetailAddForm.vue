@@ -156,7 +156,7 @@ const removeImage = (imageId) => {
 .title {
     font-size: 30px;
     font-weight: 700;
-    margin: 1rem 0 1rem;
+    margin: 1rem 0 0;
 }
 
 .grid-view {
