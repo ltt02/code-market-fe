@@ -17,7 +17,7 @@
                             <div class="grid-column six-twelfths">
                                 <label for="productPrice">Giá (VND):</label>
                                 <InputNumber v-model="applicationForAdding.price" inputId="integeronly" fluid />
-<!--  -->
+                                <!--  -->
                                 <!-- <input v-model="applicationForAdding.price" type="number" id="productPrice"
                                     name="productPrice" required placeholder=""
                                     class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" /> -->
@@ -35,9 +35,9 @@
                         <div class="grid-view">
                             <div class="grid-column">
                                 <label for="applicationThumbnail">Hình ảnh minh họa:</label>
-                                <FileUpload name="" url="/api/upload"
-                                    :multiple="true" accept="image/*" :maxFileSize="999999999999" chooseLabel="Thêm"
-                                    :showUploadButton="false" :showCancelButton="false" @select="handleImagesInputChange">
+                                <FileUpload name="" url="/api/upload" :multiple="true" accept="image/*"
+                                    :maxFileSize="999999999999" chooseLabel="Thêm" :showUploadButton="false"
+                                    :showCancelButton="false" @select="handleImagesInputChange">
                                     <template #empty>
                                         <span>Bạn có thể kéo và thả file vào đây.</span>
                                     </template>
@@ -162,7 +162,7 @@ import Editor from 'primevue/editor';
 import FileUpload from 'primevue/fileupload';
 import MultiSelect from 'primevue/multiselect';
 import InputNumber from 'primevue/inputnumber';
-import { ref, computed, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount, toRaw } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import ProductService from "@/services/application.service";
 import ApplicationFrameworkService from "@/services/application_framework.service.ts"
@@ -191,6 +191,7 @@ interface ApplicationObject {
     description: any,
     sourceCode: File,
     images: File[],
+    authorId: number,
 }
 
 const applicationForAdding = ref<ApplicationObject>({
@@ -204,6 +205,7 @@ const applicationForAdding = ref<ApplicationObject>({
     description: '',
     sourceCode: null,
     images: [],
+    authorId: JSON.parse(localStorage.getItem('developer')).id,
 });
 
 const productStore = useProductStore();
@@ -276,18 +278,56 @@ const handleImagesInputChange = async (event) => {
 
     for (let i = nextImgIndex.value; i < files.length; i++) {
         thumbnailList.value.push(files[i]);
-        console.log(thumbnailList.value[i]);
         nextImgIndex.value++;
     }
 };
 
 const addApplication = async () => {
     try {
-        applicationForAdding.value.applicationFrameworkList = selectedFrameworkOptionList;
-        applicationForAdding.value.applicationCategoryList = selectedCategoryOptionList;
-        applicationForAdding.value.applicationPlatformList = selectedPlatformOptionList;
-        applicationForAdding.value.applicationType = selectedTypeOption;
-        const response = await axios.post("http://localhost:8080/applications", applicationForAdding.value);
+        const formData = new FormData();
+        formData.append("name", applicationForAdding.value.name);
+        formData.append("price", applicationForAdding.value.price);
+        formData.append("storageCapacity", applicationForAdding.value.storageCapacity);
+        formData.append("authorId", applicationForAdding.value.authorId);
+        formData.append("description", applicationForAdding.value.description);
+
+        const plainCategoryOptionList = selectedCategoryOptionList.value.map(item => ({
+            id: item.id,
+            name: item.name
+        }));
+        const plainFrameworkOptionList = selectedFrameworkOptionList.value.map(item => ({
+            id: item.id,
+            name: item.name
+        }));
+        const plainPlatformOptionList = selectedPlatformOptionList.value.map(item => ({
+            id: item.id,
+            name: item.name
+        }));
+
+        // Append selected options
+        formData.append("applicationType", JSON.stringify({
+            id: selectedTypeOption.value.id,
+            name: selectedTypeOption.value.name
+        }));
+        formData.append("applicationCategoryList", JSON.stringify(plainCategoryOptionList));
+        formData.append("applicationFrameworkList", JSON.stringify(plainFrameworkOptionList));
+        formData.append("applicationPlatformList", JSON.stringify(plainPlatformOptionList));
+
+        // Append the source code file
+        formData.append("sourceCode", selectedSource.value);
+
+        // Append images
+        thumbnailList.value.forEach((file, index) => {
+            formData.append("images", file);
+        });
+
+
+        const response = await axios.post("http://localhost:8080/applications", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
         closeProductAddForm();
         emit('add-product-done');
         return response.data;
