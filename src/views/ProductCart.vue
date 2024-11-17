@@ -24,7 +24,7 @@
                                     id: item.application.id,
                                 },
                             }">
-                                <img :src="item.application.images" :alt="item.application.name"
+                                <img :src="item.application.applicationImages[0].link" :alt="item.application.name"
                                     class="w-48 h-24 object-cover rounded" />
                             </router-link>
                             <router-link :to="{

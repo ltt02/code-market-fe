@@ -33,7 +33,24 @@
                                                         <div class="product-detail-image-container-lv3">
                                                             <div class="product-detail-image-container-lv4">
                                                                 <div class="product-detail-image-container-lv5">
-                                                                    <img :src="application.images" alt="">
+                                                                    <Galleria :value="application.applicationImages"
+                                                                        :responsiveOptions="responsiveOptions"
+                                                                        :numVisible="5"
+                                                                        containerStyle=""
+                                                                        :circular="true" :autoPlay="true"
+                                                                        :transitionInterval="2000">
+                                                                        <template #item="slotProps">
+                                                                            <img :src="slotProps.item.link"
+                                                                                style="width: 100%; display: block" />
+                                                                        </template>
+                                                                        <template #thumbnail="slotProps">
+                                                                            <img :src="slotProps.item.link"
+                                                                                style="width: 80%; height: 80%; display: block" />
+                                                                        </template>
+                                                                    </Galleria>
+                                                                    <!-- <img v-if="application.applicationImages?.length > 0"
+                                                                        :src="application.applicationImages[0].link"
+                                                                        alt=""> -->
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -49,8 +66,8 @@
                                             <div class="product-detail-description-section">
                                                 <span>
                                                     <div class="product-detail-description-text-container">
-                                                        <div class="product-detail-description-text">
-                                                            {{ application.description }}
+                                                        <div v-html="application.description"
+                                                            class="product-detail-description-text">
                                                         </div>
                                                     </div>
                                                 </span>
@@ -298,7 +315,8 @@
                                 <div class="product-detail-rating">
                                     <div class="rating-title">
                                         <h3 class="rating-title-text">
-                                            <span>Đánh giá từ {{ formatNumber(application.downloads) }} người dùng</span>
+                                            <span>Đánh giá từ {{ formatNumber(application.downloads) }} người
+                                                dùng</span>
                                         </h3>
                                     </div>
                                 </div>
@@ -366,11 +384,12 @@
                         </div>
                         <div class="product-detail-body-container">
                             <div class="product-detail-basic-info">
-                                <ProductReview/>
+                                <ProductReview />
                             </div>
                         </div>
                         <div class="product-detail-body-container mt-8">
-                            <ProductList :application-list="applicationListResponse" :list-type="listSlides[0]" :key="listSlides[0]"/>
+                            <ProductList :application-list="applicationListResponse" :list-type="listSlides[0]"
+                                :key="listSlides[0]" />
                         </div>
                     </div>
                 </div>
@@ -387,6 +406,7 @@
 <script setup>
 import { ref, reactive, computed, onBeforeMount, onMounted, inject } from 'vue';
 import { useRoute } from 'vue-router';
+import Galleria from 'primevue/galleria';
 import HeaderMenu from '@/components/common/HeaderMenu.vue'
 import SearchInput from '@/components/common/SearchInput.vue'
 import CarouselSlide from '@/components/common/CarouselSlide.vue'
@@ -399,21 +419,21 @@ import UserService from "@/services/user.service.ts"
 import { APPLICATION_TYPE } from '@/const.js';
 
 const listSlides = [
-  { id: 1, title: 'Ứng dụng bạn có thể quan tâm', name: 'newApplications' },
+    { id: 1, title: 'Ứng dụng bạn có thể quan tâm', name: 'newApplications' },
 ]
 
 const applicationListResponse = ref([]);
 
 const retrieveApplicationList = async () => {
-  try {
-    applicationListResponse.value = await ApplicationService.getAll();
-  } catch (error) {
-    console.log(error);
-  }
+    try {
+        applicationListResponse.value = await ApplicationService.getAll();
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 const init = () => {
-  retrieveApplicationList();
+    retrieveApplicationList();
 }
 
 onMounted(() => {
@@ -493,7 +513,7 @@ const retrieveAuthor = async (id) => {
     }
 };
 
-onBeforeMount( async () => {
+onBeforeMount(async () => {
     await retrieveApplication(applicationId.value);
     await retrieveAuthor(application.value.authorId);
 });
@@ -582,7 +602,7 @@ onBeforeMount( async () => {
 }
 
 .product-detail-media+.product-detail-media {
-    margin-top: 20px;
+    margin-top: 180px;
 }
 
 .product-detail-media-container {
@@ -591,13 +611,11 @@ onBeforeMount( async () => {
 
 .product-detail-media-container-lv2 {
     position: relative;
-    overflow: hidden;
 }
 
 .product-detail-image-container {
     border-radius: 12px;
     position: relative;
-    overflow: hidden;
     flex-basis: 100%;
     flex-shrink: 0;
 }
@@ -617,7 +635,6 @@ onBeforeMount( async () => {
     display: flex;
     height: 100%;
     width: 100%;
-    overflow: hidden;
     position: absolute;
 }
 
@@ -670,9 +687,24 @@ onBeforeMount( async () => {
     overflow: hidden;
     word-break: break-word;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 6;
+    /* -webkit-line-clamp: 6; */
     text-align: justify;
 }
+
+.product-detail-description-text h2 {
+    margin: 0 0 18px;
+}
+
+.product-detail-description-text h2 span {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 22px;
+}
+
+.product-detail-description-text p {
+    margin-bottom: 1rem;
+}
+
 
 .product-detail-description-genres {
     display: flex;

@@ -37,7 +37,8 @@
                                 <label for="applicationThumbnail">Hình ảnh minh họa:</label>
                                 <FileUpload name="" url="/api/upload" :multiple="true" accept="image/*"
                                     :maxFileSize="999999999999" chooseLabel="Thêm" :showUploadButton="false"
-                                    :showCancelButton="false" @select="handleImagesInputChange">
+                                    :showCancelButton="false" @select="handleImagesInputChange"
+                                    @remove="handleImagesInputRemove">
                                     <template #empty>
                                         <span>Bạn có thể kéo và thả file vào đây.</span>
                                     </template>
@@ -121,7 +122,8 @@
                             <div class="grid-column">
                                 <label for="productType">Mô tả:</label>
                                 <Editor v-model="applicationForAdding.description" editorStyle="height: 120px"
-                                    class="font-medium" />
+                                    class="font-medium"
+                                    @text-change="handleTextChange(applicationForAdding.description)" />
                             </div>
                         </div>
 
@@ -226,6 +228,8 @@ const selectedCategoryOptionList = ref([]);
 const selectedPlatformOptionList = ref([]);
 const selectedTypeOption = ref({ id: 0, name: '-' });
 
+const uploadedImages = new Set(); // Keeps track of uploaded image URLs
+
 const getFrameworkList = async () => {
     const response = await ApplicationFrameworkService.getFrameworkList();
     frameworkList.value = response;
@@ -259,6 +263,51 @@ const onFileSelect = (event) => {
     selectedSource.value = event.files[0]; // Get the first file only
 };
 
+// Function to upload image to server
+const uploadImage = async (base64Image) => {
+    try {
+        // Replace with your API endpoint
+        const formData = new FormData();
+        formData.append("sourceCode", base64Image);
+        const response = await axios.post("http://localhost:8080/application-images/application/upload", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response; // Get URL from the response
+    } catch (error) {
+        console.error("Image upload failed", error);
+        return null;
+    }
+};
+
+// Intercept text changes in the editor
+const handleTextChange = async (content) => {
+    const imgTags = content.match(/<img[^>]+src="data:image\/[^">]+"[^>]*>/g);
+
+    if (imgTags) {
+        for (const imgTag of imgTags) {
+            // Extract the base64 image source
+            const base64Src = imgTag.match(/src="([^"]+)"/)[1];
+
+            // Skip uploading if the image has already been uploaded
+            if (uploadedImages.has(base64Src)) {
+                continue;
+            }
+
+            const serverUrl = await uploadImage(base64Src);
+
+            if (serverUrl) {
+                // Add the base64 image source to the Set
+                uploadedImages.add(base64Src);
+                // Replace the base64 image with the server URL
+                applicationForAdding.value.description = applicationForAdding.value.description.replace(base64Src, serverUrl);
+            }
+        }
+    }
+};
+
+
 // Format file size to KB, MB, etc.
 const formatFileSize = (size) => {
     const units = ['bytes', 'KB', 'MB', 'GB'];
@@ -282,12 +331,18 @@ const handleImagesInputChange = async (event) => {
     }
 };
 
+const handleImagesInputRemove = async (event) => {
+    const files = event.files;
+    thumbnailList.value = files;
+};
+
+
 const addApplication = async () => {
     try {
         const formData = new FormData();
         formData.append("name", applicationForAdding.value.name);
         formData.append("price", applicationForAdding.value.price);
-        formData.append("storageCapacity", applicationForAdding.value.storageCapacity);
+        formData.append("storageCapacity", selectedSource.value.size);
         formData.append("authorId", applicationForAdding.value.authorId);
         formData.append("description", applicationForAdding.value.description);
 

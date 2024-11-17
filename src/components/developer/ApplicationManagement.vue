@@ -1,9 +1,14 @@
 <template>
-    <ProductAddForm @add-product-done="retriveProducts" :is-show-sidebar="props.isShowSidebar" />
+    <ProductAddForm @add-product-done="retrieveApplicationListByDeveloperId" :is-show-sidebar="props.isShowSidebar" />
     <ProductUpdateForm @update-product="retriveProducts" :product-for-updating="selectedProduct" />
     <ProductDetails @add-detail-done="showDetails" @update-detail-done="showDetails" @reset-details="reloadDetails"
         :product-details="productDetails" :product-id="selectedProduct.id" />
+    <!-- <div class="card flex justify-center items-center fixed w-full h-full z-10 bg-gray-400	">
+        <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8" fill="transparent" animationDuration=".5s"
+            aria-label="Custom ProgressSpinner" />
+    </div> -->
     <div class="product-managemen p-3">
+
         <div class="w-full">
             <div class="w-full">
                 <!-- Các thông báo -->
@@ -70,6 +75,7 @@
                 <div class="flex items-end mt-2">Tổng số: {{ currentTotalApplications }}</div>
             </div>
         </div>
+
         <!-- <div class="relative overflow-x-auto custom-scrollbar" style="max-height: 500px;">
             <table id="table-data" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                 <thead
@@ -138,6 +144,7 @@
         <DataTable v-model:selection="selectedApplication" :value="applicationListResponse"
             tableStyle="min-width: 50rem" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" sortable
             sortMode="multiple" removableSort :loading="loading" scrollable ref="dt">
+
             <!-- <template #header>
                 <div class="flex justify-end">
                     <IconField>
@@ -163,19 +170,19 @@
                         placeholder="Tìm theo tên" />
                 </template>
             </Column>
-            <Column sortable field="storageCapacity" header="Dung lượng (Mb)" bodyStyle="text-align:right">
+            <Column sortable field="storageCapacity" header="Dung lượng" bodyStyle="text-align:right">
                 <template #header>
                     <span class="flex-1 text-right"></span>
                 </template>
                 <template #body="slotProps">
-                    {{ formatNumber(slotProps.data.storageCapacity) }}
+                    {{ formatNumber(formatStorageCapacity(slotProps.data.storageCapacity)) }}
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
                     <InputText v-model="filterModel.value" type="text" @input="filterCallback()"
                         placeholder="Search by country" />
                 </template>
             </Column>
-            <Column sortable field="price" header="Giá" bodyStyle="text-align:right">
+            <Column sortable field="price" header="Giá (VNĐ)" bodyStyle="text-align:right">
                 <template #header>
                     <span class="flex-1 text-right"></span>
                 </template>
@@ -201,8 +208,13 @@
                     <span class="flex-1 text-right"></span>
                 </template>
                 <template #body="slotProps">
-                    {{ slotProps.data.ratings.toFixed(1) }}
-                    <span class="fa fa-star text-yellow-500"></span>
+                    <div v-if="slotProps.data.ratings">
+                        {{ slotProps.data.ratings?.toFixed(1) }}
+                        <span class="fa fa-star text-yellow-500"></span>
+                    </div>
+                    <div v-else>
+                        Chưa có dữ liệu
+                    </div>
                 </template>
                 <!-- <template #filter="{ filterModel, filterCallback }">
                     <Select v-model="filterModel.value" @change="filterCallback()" :options="statuses"
@@ -245,6 +257,7 @@ import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
+import ProgressSpinner from 'primevue/progressspinner';
 import { FilterMatchMode } from '@primevue/core/api';
 import ApplicationService from "@/services/application.service.js"
 import { APPLICATION_APPROVAL_STATUS } from '@/const.js';
@@ -306,6 +319,7 @@ const representatives = ref([
 const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
 
 const loading = ref(false);
+const isLoading = ref(false);
 
 const selectedApplication = ref<ApplicationObject>();
 const currentTotalApplications = ref<number>(0);
@@ -349,6 +363,18 @@ const formatNumber = (number) => {
     return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+const formatStorageCapacity =(bytes) => {
+  if (bytes >= 1024 ** 3) {
+    return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+  } else if (bytes >= 1024 ** 2) {
+    return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
+  } else if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  } else {
+    return `${bytes} B`;
+  }
+}
+
 const retriveProducts = async () => {
     try {
         const response = await axios.get(`http://localhost:8080/applications`);
@@ -361,10 +387,14 @@ const retriveProducts = async () => {
 
 const retrieveApplicationListByDeveloperId = async () => {
     try {
-        const developerId = JSON.parse(localStorage.getItem('developer')).id;
-        const response = await ApplicationService.getAllByDeveloperId(developerId);
-        applicationListResponse.value = response.data;
-        currentTotalApplications.value = applicationListResponse.value?.length!;
+        isLoading.value = true;
+        // setTimeout(async () => {
+            const developerId = JSON.parse(localStorage.getItem('developer')).id;
+            const response = await ApplicationService.getAllByDeveloperId(developerId);
+            applicationListResponse.value = response.data;
+            currentTotalApplications.value = applicationListResponse.value?.length!;
+        // }, 10000);
+        isLoading.value = false;
     } catch (error) {
         console.log(error);
     }
