@@ -51,7 +51,44 @@ const router = createRouter({
       path: '/developer',
       name: 'developer',
       component: DeveloperPage,
-    }
+    },
+    {
+      path: "/account",
+      component: () => import("@/views/UserInfo.vue"),
+      // meta: { requiresAuth: true },
+      children: [
+        {
+          path: "info",
+          name: "userInfo",
+          component: () =>
+            import("@/components/profile/account-content/AccountContent.vue"),
+        },
+        {
+          path: "orders",
+          name: "myOrders",
+          component: () =>
+            import("@/components/profile/account-content/OrderContent.vue"),
+        },
+        {
+          path: "coupons",
+          name: "myCoupons",
+          component: () =>
+            import("@/components/profile/account-content/VoucherContent.vue"),
+        },
+        {
+          path: "addresses",
+          name: "myAddresses",
+          component: () =>
+            import("@/components/profile/account-content/AddressContent.vue"),
+        },
+        {
+          path: "reviews",
+          name: "myReviews",
+          component: () =>
+            import("@/components/profile/account-content/ReviewContent.vue"),
+        },
+      ],
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     // always scroll to top

@@ -7,9 +7,15 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AccountContent: typeof import('./src/components/profile/account-content/AccountContent.vue')['default']
+    AccountContentDisplay: typeof import('./src/components/profile/AccountContentDisplay.vue')['default']
+    AccountSideBar: typeof import('./src/components/profile/AccountSideBar.vue')['default']
+    AddressContent: typeof import('./src/components/profile/account-content/AddressContent.vue')['default']
     AInput: typeof import('./src/components/form/AInput.vue')['default']
     ApplicationManagement: typeof import('./src/components/developer/ApplicationManagement.vue')['default']
+    AvatarFrame: typeof import('./src/components/profile/account-content/AvatarFrame.vue')['default']
     CarouselSlide: typeof import('./src/components/common/CarouselSlide.vue')['default']
+    Coupon: typeof import('./src/components/common/Coupon.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElCarousel: typeof import('element-plus/es')['ElCarousel']
     ElCarouselItem: typeof import('element-plus/es')['ElCarouselItem']
@@ -20,6 +26,8 @@ declare module 'vue' {
     ElRow: typeof import('element-plus/es')['ElRow']
     FooterComponent: typeof import('./src/components/common/FooterComponent.vue')['default']
     HeaderMenu: typeof import('./src/components/common/HeaderMenu.vue')['default']
+    OrderCard: typeof import('./src/components/profile/account-content/OrderCard.vue')['default']
+    OrderContent: typeof import('./src/components/profile/account-content/OrderContent.vue')['default']
     PersonalInformation: typeof import('./src/components/developer/PersonalInformation.vue')['default']
     ProductAddForm: typeof import('./src/components/developer/ProductAddForm.vue')['default']
     ProductCard: typeof import('./src/components/product/ProductCard.vue')['default']
@@ -29,11 +37,13 @@ declare module 'vue' {
     ProductList: typeof import('./src/components/product/ProductList.vue')['default']
     ProductReview: typeof import('./src/components/product/ProductReview.vue')['default']
     ProductUpdateForm: typeof import('./src/components/developer/ProductUpdateForm.vue')['default']
+    ReviewContent: typeof import('./src/components/profile/account-content/ReviewContent.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchInput: typeof import('./src/components/common/SearchInput.vue')['default']
     StaffManagement: typeof import('./src/components/developer/StaffManagement.vue')['default']
     Statistic: typeof import('./src/components/developer/Statistic.vue')['default']
     ThemeSwitcher: typeof import('./src/components/common/ThemeSwitcher.vue')['default']
+    VoucherContent: typeof import('./src/components/profile/account-content/VoucherContent.vue')['default']
   }
 }

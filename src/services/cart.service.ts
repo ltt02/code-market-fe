@@ -24,40 +24,43 @@ class CartService {
     this.subTotal = ref<number>(0);
     this.cartQuantity = ref<number>(0);
     this.updatedOrderAfterPayment = ref<number[]>([]);
-    if (localStorage.getItem("account")) {
-      this.customerId = JSON.parse(localStorage.getItem("account")!).id || 0;
+    if (localStorage.getItem('user')) {
+      this.customerId = JSON.parse(localStorage.getItem('user')!).id || 0;
     }
   }
 
   public async getCart() {
     const baseUri = this.getBaseUri();
-    if (localStorage.getItem("account")) {
-      this.customerId = JSON.parse(localStorage.getItem("account")!).id;
-    } else {
-      this.customerId = 12;
+    if (localStorage.getItem('user')) {
+      this.customerId = JSON.parse(localStorage.getItem('user')!).id;
+    // } else {
+      // this.customerId = 12;
     }
 
     const response = await axios.get(
       `${baseUri}/customers/${this.customerId}/cart`
     );
-    this.cartItems.value = response.data;
 
-    this.subTotal.value = 0;
-    this.total.value = 0;
-    if (typeof this.cartItems._rawValue != typeof "") {
-      const cartItems = this.cartItems._rawValue;
-      cartItems.forEach((item) => {
-        this.subTotal.value += item.application.price;
+    if (response.data != "This cart is empty") {
+      this.cartItems.value = response.data;
+
+      this.subTotal.value = 0;
+      this.total.value = 0;
+      if (typeof this.cartItems._rawValue != typeof "") {
+        const cartItems = this.cartItems._rawValue;
+        cartItems.forEach((item) => {
+          this.subTotal.value += item.application.price;
+        });
+      }
+      this.cartQuantity.value = 0;
+
+      this.subTotal.value =
+        this.total.value + this.shipCost.value - this.discount.value;
+
+      response.data.forEach((item) => {
+        this.cartQuantity.value++;
       });
     }
-    this.cartQuantity.value = 0;
-
-    this.subTotal.value =
-      this.total.value + this.shipCost.value - this.discount.value;
-
-    response.data.forEach((item) => {
-      this.cartQuantity.value++;
-    });
     return response.data;
   }
 

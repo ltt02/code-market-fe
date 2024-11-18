@@ -15,34 +15,34 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 space-y-4">
-                    <div v-for="item in applicationInCart" :key="item.application.id"
+                    <div v-for="item in applicationInCart" :key="item.application?.id"
                         class="shadow-md hover:shadow-lg rounded-lg p-4">
                         <div class="flex items-start space-x-4">
                             <router-link :to="{
                                 name: 'application',
                                 params: {
-                                    id: item.application.id,
+                                    id: item.application?.id,
                                 },
                             }">
-                                <img :src="item.application.applicationImages[0]?.link" :alt="item.application.name"
+                                <img :src="item.application.applicationImages[0]?.link" :alt="item.application?.name"
                                     class="w-48 h-24 object-cover rounded" />
                             </router-link>
                             <router-link :to="{
                                 name: 'application',
                                 params: {
-                                    id: item.application.id,
+                                    id: item.application?.id,
                                 },
                             }" class="flex-grow">
                                 <div class="flex-grow">
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <span class="text-xs text-gray-400">{{
-                                                getApplicationType(item.application.type)
+                                                getApplicationType(item.application?.type)
                                             }}</span>
-                                            <h2 class="text-l font-semibold">{{ item.application.name }}</h2>
+                                            <h2 class="text-l font-semibold">{{ item.application?.name }}</h2>
                                         </div>
-                                        <span v-if="item.application.price > 0" class="text-xl">{{
-                                            VND.format(item.application.price) }}</span>
+                                        <span v-if="item.application?.price > 0" class="text-xl">{{
+                                            VND.format(item.application?.price) }}</span>
                                         <span v-else class="text-xl">Miễn phí</span>
                                     </div>
                                     <!-- <div v-if="item.rating"
@@ -190,6 +190,7 @@ const getCart = async () => {
 const removeFromCart = async (cartDetailId) => {
     const response = await CartService.deleteCartDetail(cartDetailId);
     applicationInCart.value = response;
+    cartStore.setCartDetails(response);
     return response;
 }
 

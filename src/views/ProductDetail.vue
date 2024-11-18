@@ -484,15 +484,15 @@ const formatNumber = (number) => {
 const addToCart = async () => {
     var toastContainer = document.getElementById('addCartMessage');
     var toastExistedContainer = document.getElementById('addExistedCartMessage');
-    const response = await CartService.addApplicationToCart(12, application.value.id);
+    const response = await CartService.addApplicationToCart(JSON.parse(localStorage.getItem('user')).id, application.value.id);
     if (response == 1) {
-        cartStore.addCartDetail(response.data);
         toastExistedContainer.display = 'none';
         toastExistedContainer.style.display = '';
         setTimeout(function () {
             toastExistedContainer.style.display = 'none';
         }, 1000);
     } else {
+        cartStore.addCartDetail(response.data);
         toastContainer.style.display = 'none';
         toastContainer.style.display = '';
         setTimeout(function () {
