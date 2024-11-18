@@ -211,6 +211,7 @@ class CartService {
 
     let request = {
       ...response.data,
+      createDate: null,
       status: "SUCCESSFUL",
     };
 

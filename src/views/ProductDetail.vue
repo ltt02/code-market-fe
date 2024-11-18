@@ -417,6 +417,9 @@ import ApplicationService from "@/services/application.service.js"
 import CartService from "@/services/cart.service.ts"
 import UserService from "@/services/user.service.ts"
 import { APPLICATION_TYPE } from '@/const.js';
+import { useCartStore } from '@/stores/cart.store'
+
+const cartStore = useCartStore();
 
 const listSlides = [
     { id: 1, title: 'Ứng dụng bạn có thể quan tâm', name: 'newApplications' },
@@ -483,6 +486,7 @@ const addToCart = async () => {
     var toastExistedContainer = document.getElementById('addExistedCartMessage');
     const response = await CartService.addApplicationToCart(12, application.value.id);
     if (response == 1) {
+        cartStore.addCartDetail(response.data);
         toastExistedContainer.display = 'none';
         toastExistedContainer.style.display = '';
         setTimeout(function () {

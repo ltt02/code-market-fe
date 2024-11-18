@@ -11,5 +11,8 @@ export const useCartStore = defineStore('cartStore', {
     setCartDetails(cartDetails) {
       this.cartDetails = cartDetails;
     },
+    addCartDetail(cartDetail) {
+      this.cartDetails.push(cartDetail);
+    }
   }
 })

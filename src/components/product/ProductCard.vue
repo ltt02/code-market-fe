@@ -8,7 +8,7 @@
                         id: application.id,
                     },
                 }" :application-id="application.id">
-                    <img class="card-img-top" :src=application.applicationImages[0].link alt="Card image" style="width:100%">
+                    <img class="card-img-top" :src=application.applicationImages[0]?.link alt="Card image" style="width:100%">
                 </router-link>
             </div>
             <!-- <span class="product-card__tags">New</span> -->

@@ -102,8 +102,7 @@
                             <ShoppingCart class="h-6 w-6" />
                             <span
                                 class="inline-flex items-center rounded-md bg-red-50 px-2 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10 absolute top-4">{{
-                                    CartService.cartQuantity.value == 0 ? applicationInCart.length :
-                                        CartService.cartQuantity.value
+                                    cartStore.cartDetails.length
                                 }}</span>
                         </button>
                     </router-link>
@@ -133,6 +132,7 @@ import { useRouter } from 'vue-router';
 import { SearchIcon, UserIcon, MenuIcon, ShoppingCart, ChevronDown } from 'lucide-vue-next'
 import HeaderNavService from "@/services/header_nav.service.ts"
 import CartService from "@/services/cart.service.ts"
+import { useCartStore } from '@/stores/cart.store'
 
 const router = useRouter();
 const model = defineModel()
@@ -143,6 +143,8 @@ const isOpenedSubNavUser = ref(false)
 const isLoggedIn = ref(false);
 const applicationInCart = ref([]);
 const isShowDeveloperBtn = ref(false);
+
+const cartStore = useCartStore();
 
 const props = defineProps({
     cartQuantityAfterPayment: {
