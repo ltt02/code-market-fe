@@ -21,7 +21,7 @@
                             Họ và tên
                         </div>
                         <div class="account-info-value">
-                            {{ userInfo && userInfo.name ? userInfo.name : 'Chưa cập nhật!' }}
+                            {{ userInfo && userInfo.fullName ? userInfo.fullName : 'Chưa cập nhật!' }}
                         </div>
                     </div>
                     <div class="account-info-field">
@@ -46,7 +46,7 @@
                     </div>
                     <div class="account-info-field" style="position: relative;">
                         <div class="account-info-label">
-                            Ngày sinh <i class="bday-note">(ngày/tháng/năm)</i>
+                            Ngày sinh <i class="bday-note">(YYYY-MM-DD)</i>
                         </div>
                         <div class="account-info-value">
                             <span style="opacity: 0.6; font-size: 0.85em;">
@@ -54,27 +54,21 @@
                             </span>
                         </div>
                     </div>
-                    <div class="account-info-field">
-                        <div class="account-info-label">
-                            Địa chỉ
-                        </div>
-                        <div class="account-info-value">
-                            <span style="opacity: 0.6; 
-                            font-size: 0.85em;">
-                                <i>{{ userInfo && userInfo.address ? userInfo.address : 'Chưa cập nhật!' }}</i>
-                            </span>
-                        </div>
-                    </div>
+                </div>
+                <div class="account-info-field">
+                    <button @click="clickUpdate()" class="btn account-info-btn">
+                        Cập nhật
+                    </button>
                 </div>
                 <h3 class="account-page-title">
                     Thông tin đăng nhập
                 </h3>
                 <div class="account-info-field">
                     <div class="account-info-label">
-                        Tên đăng nhập
+                        Tên người dùng
                     </div>
                     <div class="account-info-value">
-                        {{ userInfo && userInfo.account ? userInfo.account : 'Chưa cập nhật!' }}
+                        {{ userInfo && userInfo.userName ? userInfo.userName : 'Chưa cập nhật!' }}
                     </div>
                 </div>
                 <div class="account-info-field">
@@ -87,7 +81,7 @@
                 </div>
                 <div class="account-info-field">
                     <button @click="clickUpdate()" class="btn account-info-btn">
-                        Cập nhật
+                        Đổi mật khẩu
                     </button>
                 </div>
 
@@ -96,8 +90,9 @@
                     <form class="max-w-3xl mt-5" @submit.prevent="submitUpdateInfo">
                         <div
                             class="bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden w-screen max-w-xl p-4">
-                            <h2 class="text-xl text-gray-900 dark:text-gray-300 pb-2 font-bold">Thông tin tài khoản cá
-                                nhân</h2>
+                            <h2 class="text-xl text-gray-900 dark:text-gray-300 pb-2 font-bold">
+                                Thông tin tài khoản cá nhân
+                            </h2>
                             <div class="flex flex-col gap-2 w-full border-gray-400">
                                 <div>
                                     <label class="text-gray-600 dark:text-gray-400">Họ và tên
@@ -185,22 +180,21 @@ const submitUpdateInfo = async () => {
 
 interface AccountInfo {
     id: number;
-    account: string;
+    fullName: string;
+    userName: string;
     dob: string;
     phone: string;
     email: string;
-    name: string;
-    address: string;
 }
 
 const accountInfo = ref<AccountInfo | null>(null);
 const userInfo = ref<AccountInfo | null>(null);
 onMounted(() => {
-    const storedAccount = localStorage.getItem('account');
+    const storedAccount = localStorage.getItem('user');
     if (storedAccount) {
         accountInfo.value = JSON.parse(storedAccount);
         if (accountInfo.value) {
-            fetchUserInfo(accountInfo.value.account);
+            fetchUserInfo(accountInfo.value.userName);
         }
     }
 });
@@ -208,7 +202,7 @@ onMounted(() => {
 const baseUrl = 'http://localhost:8080';
 async function fetchUserInfo(username: string) {
     try {
-        const response = await axios.get(`${baseUrl}/users/${username}`);
+        const response = await axios.get(`${baseUrl}/users/username/${username}`);
         userInfo.value = response.data;
     } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);

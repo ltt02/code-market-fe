@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CartService } from '@/services/cart.service';
-import { ReviewService } from '@/services/review.service';
+// import { ReviewService } from '@/services/review.service';
 import { defineProps, inject, ref } from 'vue';
 import type { Review } from './OrderCard.vue';
 
