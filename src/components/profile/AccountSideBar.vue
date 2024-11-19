@@ -1,5 +1,5 @@
 <template>
-    <div class="account-sidebar-items my-50">
+    <div class="account-sidebar-items my-50 shadow-md">
         <div class="avatar">
             <AvatarFrame/>
         </div>
@@ -19,7 +19,7 @@ export default {
     data() {
         return {
             sidebarItems: [
-                { routeName: 'userInfo', label: 'Thông tin', imageSrc: 'https://mcdn.coolmate.me/image/September2023/mceclip6_34.png', name: 'userInfo', isActive: false },
+                { routeName: 'userInfo', label: 'Thông tin', imageSrc: 'https://mcdn.coolmate.me/image/September2023/mceclip6_34.png', name: 'userInfo', isActive: true },
                 { routeName: 'myOrders', label: 'Lịch sử mua hàng', imageSrc: 'https://mcdn.coolmate.me/image/September2023/mceclip4_7.png', name: 'orderHistory', isActive: false },
                 { routeName: 'myCoupons', label: 'Ví voucher', imageSrc: 'https://mcdn.coolmate.me/image/September2023/mceclip1_59.png', name: 'voucherWallet', isActive: false },
                 { routeName: 'myReviews', label: 'Đánh giá và phản hồi', imageSrc: 'https://mcdn.coolmate.me/image/September2023/mceclip3_71.png', name: 'reviewsFeedback', isActive: false },
@@ -49,7 +49,7 @@ export default {
     position: relative;
     background-color: rgb(255, 255, 255);
     width: 100%;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
     padding-bottom: 1.5rem;
     border-radius: 0.5rem;
 }

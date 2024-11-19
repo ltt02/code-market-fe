@@ -11,8 +11,11 @@ export const useCartStore = defineStore('cartStore', {
     setCartDetails(cartDetails) {
       this.cartDetails = cartDetails;
     },
-    addCartDetail(cartDetail) {
+    addToCartDetail(cartDetail) {
       this.cartDetails.push(cartDetail);
     }
+    // removeFromCartDetail(cartDetail) {
+      // this.cartDetails.pop(cartDetail);
+    // }
   }
 })

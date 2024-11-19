@@ -9,7 +9,7 @@
         role="alert">
         <span class="font-medium">Cập nhật thất bại!!!</span>
     </div>
-    <div class="account-content my-50">
+    <div class="account-content my-50 shadow-md">
         <div id="info-tab" class="account-info">
             <h2 class="account-page-title">
                 Thông tin tài khoản
@@ -208,7 +208,7 @@ onMounted(() => {
 const baseUrl = 'http://localhost:8080';
 async function fetchUserInfo(username: string) {
     try {
-        const response = await axios.get(`${baseUrl}/users/account/${username}`);
+        const response = await axios.get(`${baseUrl}/users/${username}`);
         userInfo.value = response.data;
     } catch (error) {
         console.error('Lỗi khi lấy thông tin người dùng:', error);
@@ -235,7 +235,7 @@ const formatDate = (Dob: string) => {
     box-sizing: border-box;
     background-color: white;
     width: 100%;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
 }
 
 .account-page-title {
