@@ -87,19 +87,28 @@
 
                 <!-- Pop-up cập nhật thông tin -->
                 <div v-if="showUpdateModal" class="fixed inset-0 flex items-center justify-center z-50">
-                    <form class="max-w-3xl mt-5" @submit.prevent="submitUpdateInfo">
+                    <Toast />
+                    <Form v-slot="$form" :resolver="resolver" @submit="onFormSubmit"
+                        class="flex flex-col gap-4 w-full max-w-3xl mt-5 items-center">
                         <div
-                            class="bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden w-screen max-w-xl p-4">
-                            <h2 class="text-xl text-gray-900 dark:text-gray-300 pb-2 font-bold">
-                                Thông tin tài khoản cá nhân
+                            class="z-20 bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden w-screen max-w-xl pt-10 px-6 pb-4 relative">
+                            <h2 class="text-3xl text-gray-900 dark:text-gray-300 pb-2 font-bold">
+                                Cập nhật thông tin tài khoản
                             </h2>
                             <div class="flex flex-col gap-2 w-full border-gray-400">
                                 <div>
                                     <label class="text-gray-600 dark:text-gray-400">Họ và tên
                                     </label>
-                                    <input v-model="userInfo!.name"
+                                    <InputText class="w-full" type="text" name="fullName" v-model="userInfo!.fullName" />
+                                    <Message v-if="$form.fullName?.invalid" severity="error" size="small" variant="simple">{{ $form.fullName.error.message }}</Message>
+
+                                </div>
+                                <div>
+                                    <label class="text-gray-600 dark:text-gray-400">Ngày sinh</label>
+                                    <!-- <input v-model="userInfo!.dob"
                                         class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
-                                        type="text">
+                                        type="date"> -->
+                                    <DatePicker class="w-full" v-model="userInfo!.dob" dateFormat="dd/mm/yy" />
                                 </div>
                                 <div>
                                     <label class="text-gray-600 dark:text-gray-400">Email</label>
@@ -107,32 +116,99 @@
                                         class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
                                         type="email">
                                 </div>
-                                <div>
-                                    <label class="text-gray-600 dark:text-gray-400">Số điện thoại</label>
+                                <!-- <div>
                                     <input v-model="userInfo!.phone"
-                                        class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
-                                        type="text">
+                                    class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
+                                    type="text">
+                                </div> -->
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-gray-600 dark:text-gray-400">Số điện thoại</label>
+                                    <InputText class="w-full" type="text" v-model="userInfo!.phone" />
+                                    <!-- <Message v-if="$form.amount?.invalid" severity="error" size="small"
+                                        variant="simple">{{ $form.amount.error?.message }}</Message> -->
+                                </div>
+                                <div class="flex justify-end">
+                                    <button
+                                        class="py-1.5 px-3 m-1 text-center bg-violet-700 border rounded-md text-white  hover:bg-violet-500 hover:text-gray-100 dark:text-gray-200 dark:bg-violet-700"
+                                        type="submit">
+                                        Lưu thay đổi
+                                    </button>
+                                </div>
+                                <!-- <Button type="submit" severity="secondary" label="Lưu thay đổi" /> -->
+                            </div>
+                            <button @click.prevent="closeForm" class="form__close" style="z-index: 10;">
+                                <svg width="18" height="18" viewBox="0 0 22 22" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g opacity="0.6">
+                                        <path
+                                            d="M0.710153 1.39081C1.10215 0.719768 1.8828 0.603147 2.4538 1.13033L20.9665 18.2226C21.5375 18.7498 21.6826 19.7211 21.2906 20.3922V20.3922C20.8986 21.0632 20.118 21.1798 19.547 20.6526L1.03426 3.56039C0.463267 3.0332 0.318158 2.06185 0.710153 1.39081V1.39081Z"
+                                            fill="black"></path>
+                                        <path
+                                            d="M0.821701 20.5854C0.421822 19.9218 0.552504 18.9506 1.11359 18.4163L19.4354 0.967765C19.9965 0.433427 20.7755 0.538253 21.1754 1.2019V1.2019C21.5753 1.86555 21.4446 2.83671 20.8835 3.37105L2.56168 20.8196C2.00059 21.3539 1.22158 21.2491 0.821701 20.5854V20.5854Z"
+                                            fill="black"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    </Form>
+                    <div class="form__background z-10" @click.prevent="closeForm"></div>
+                    <!-- <form class="max-w-3xl mt-5 z-20" @submit.prevent="submitUpdateInfo">
+                        <div
+                            class="bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden w-screen max-w-xl pt-10 px-6 pb-4 relative">
+                            <h2 class="text-3xl text-gray-900 dark:text-gray-300 pb-2 font-bold">
+                                Cập nhật thông tin tài khoản
+                            </h2>
+                            <div class="flex flex-col gap-2 w-full border-gray-400">
+                                <div>
+                                    <label class="text-gray-600 dark:text-gray-400">Họ và tên
+                                    </label>
+                                    <InputText class="w-full" type="text" v-model="userInfo!.fullName" />
                                 </div>
                                 <div>
-                                    <label class="text-gray-600 dark:text-gray-400">Ngày sinh</label>
-                                    <input v-model="userInfo!.dob"
+                                    <label class="text-gray-600 dark:text-gray-400">Ngày sinh</label> -->
+                    <!-- <input v-model="userInfo!.dob"
                                         class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
-                                        type="date">
+                                        type="date"> -->
+                    <!-- <DatePicker class="w-full" v-model="userInfo!.dob" dateFormat="dd/mm/yy" />
                                 </div>
                                 <div>
-                                    <label class="text-gray-600 dark:text-gray-400">Địa chỉ</label>
-                                    <input v-model="userInfo!.address"
+                                    <label class="text-gray-600 dark:text-gray-400">Email</label>
+                                    <input v-model="userInfo!.email"
                                         class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
-                                        type="text">
-                                </div>
+                                        type="email">
+                                </div> -->
+                    <!-- <div>
+                                    <input v-model="userInfo!.phone"
+                                    class="w-full py-3 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow dark:bg-gray-600 dark:text-gray-100"
+                                    type="text">
+                                </div> -->
+                    <!-- <div class="flex flex-col gap-1">
+                                    <label class="text-gray-600 dark:text-gray-400">Số điện thoại</label>
+                                    <InputText class="w-full" type="text" v-model="userInfo!.phone" /> -->
+                    <!-- <Message v-if="$form.amount?.invalid" severity="error" size="small"
+                                        variant="simple">{{ $form.amount.error?.message }}</Message> -->
+                    <!-- </div>
                                 <div class="flex justify-end">
                                     <button
                                         class="py-1.5 px-3 m-1 text-center bg-violet-700 border rounded-md text-white  hover:bg-violet-500 hover:text-gray-100 dark:text-gray-200 dark:bg-violet-700"
                                         type="submit">Lưu thay đổi</button>
                                 </div>
                             </div>
+                            <button @click.prevent="closeForm" class="form__close" style="z-index: 10;">
+                                <svg width="18" height="18" viewBox="0 0 22 22" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g opacity="0.6">
+                                        <path
+                                            d="M0.710153 1.39081C1.10215 0.719768 1.8828 0.603147 2.4538 1.13033L20.9665 18.2226C21.5375 18.7498 21.6826 19.7211 21.2906 20.3922V20.3922C20.8986 21.0632 20.118 21.1798 19.547 20.6526L1.03426 3.56039C0.463267 3.0332 0.318158 2.06185 0.710153 1.39081V1.39081Z"
+                                            fill="black"></path>
+                                        <path
+                                            d="M0.821701 20.5854C0.421822 19.9218 0.552504 18.9506 1.11359 18.4163L19.4354 0.967765C19.9965 0.433427 20.7755 0.538253 21.1754 1.2019V1.2019C21.5753 1.86555 21.4446 2.83671 20.8835 3.37105L2.56168 20.8196C2.00059 21.3539 1.22158 21.2491 0.821701 20.5854V20.5854Z"
+                                            fill="black"></path>
+                                    </g>
+                                </svg>
+                            </button>
                         </div>
-                    </form>
+                    </form> -->
                 </div>
             </div>
         </div>
@@ -141,7 +217,19 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { Form } from '@primevue/forms';
+import InputText from 'primevue/inputtext';
+import DatePicker from 'primevue/datepicker';
+import InputNumber from 'primevue/inputnumber';
+import Button from 'primevue/button';
+import Message from 'primevue/message';
+import Toast from 'primevue/toast';
+import { useToast } from "primevue/usetoast";
+import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { z } from 'zod';
 import axios from 'axios';
+
+const toast = useToast();
 
 const showUpdateModal = ref(false);
 const isUpdatedOK = ref(false);
@@ -149,6 +237,22 @@ const isUpdatedFailed = ref(false);
 
 const clickUpdate = () => {
     showUpdateModal.value = true;
+}
+
+const closeForm = () => {
+    showUpdateModal.value = false;
+}
+
+const resolver = ref(zodResolver(
+    z.object({
+        fullName: z.string().min(1, { message: 'Trường này không được rỗng!' })
+    })
+));
+
+const onFormSubmit = ({ valid }) => {
+    if (valid) {
+        toast.add({ severity: 'success', summary: 'Cập nhật thành công.', life: 3000 });
+    }
 }
 
 const submitUpdateInfo = async () => {
@@ -161,7 +265,7 @@ const submitUpdateInfo = async () => {
             const year = date.getFullYear();
             userInfo.value.dob = `${year}-${month}-${day}`;
         }
-        
+
         const response = await axios.put(`${baseUrl}/customers/${userInfo.value?.id}/updateInfo`, userInfo.value);
         if (response.status === 200) {
             isUpdatedOK.value = true;
@@ -276,5 +380,23 @@ const formatDate = (Dob: string) => {
 .bday-note {
     color: #999;
     font-size: 0.9rem;
+}
+
+.form__close {
+    position: absolute;
+    height: 0;
+    top: 1rem;
+    right: 1rem;
+    background-color: #0000;
+    border: 0;
+    cursor: pointer;
+}
+
+.form__background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transition: all .3s;
+    background: rgba(0, 0, 0, .6);
 }
 </style>

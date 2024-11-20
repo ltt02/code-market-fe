@@ -5,8 +5,7 @@ import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
-import Button from "primevue/button"
-
+import ToastService from 'primevue/toastservice';
 import './assets/input.css';
 import 'element-plus/dist/index.css'
 import { provideCartService } from './services/cart.service';
@@ -25,5 +24,5 @@ app.use(PrimeVue, {
         preset: Aura
     }
 });
-app.component('Button', Button);
+app.use(ToastService);
 app.mount('#app')
