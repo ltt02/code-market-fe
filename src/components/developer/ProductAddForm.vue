@@ -2,12 +2,12 @@
     <div class="product-form__float" :class="productStore.isShowAddFormClick ? 'is-active' : ''">
         <div class="container flex justify-center items-center" :class="{ 'max-w-full': !props.isShowSidebar }">
             <div class="product-form-container custom-scrollbar">
-                <div class="title text-center m-0">Thêm ứng dụng</div>
+                <div class="title text-center m-0">Thêm phần mềm</div>
                 <div>
                     <div id="customer-info-block">
                         <div class="grid-view">
                             <div class="grid-column">
-                                <label for="productName">Tên ứng dụng:</label>
+                                <label for="productName">Tên phần mềm:</label>
                                 <input v-model="applicationForAdding.name" type="productName" name="productName"
                                     placeholder=""
                                     class="form-control block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6 font-medium" />
@@ -75,7 +75,7 @@
                         </div>
                         <div class="grid-view">
                             <div class="grid-column six-twelfths">
-                                <label for="productType">Loại ứng dụng:</label>
+                                <label for="productType">Loại phần mềm:</label>
                                 <Menu as="div" class="frorelative inline-block text-left w-full ">
                                     <div>
                                         <MenuButton

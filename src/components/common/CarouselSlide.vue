@@ -1,13 +1,35 @@
 <template>
     <div class="block text-center carousel-container">
         <el-carousel height="380px" motion-blur>
-            <el-carousel-item v-for="item in 4" :key="item">
-                <img src="https://placehold.co/1392x380" alt="">
+            <el-carousel-item v-for="item in bannerList" :key="item">
+                <img :src="item.imgUrl" alt="" style="width: 1392px; height: 380px;" />
                 <!-- <h3 class="small justify-center" text="">{{  }}</h3> -->
             </el-carousel-item>
         </el-carousel>
     </div>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+const bannerList = [
+    {
+        id: 1,
+        imgUrl: 'src\\banner\\1\\img.jpg',
+    },
+    {
+        id: 2,
+        imgUrl: 'src\\banner\\2\\img.jpg',
+    },
+    {
+        id: 3,
+        imgUrl: 'src\\banner\\3\\img.jpg',
+    },
+    {
+        id: 4,
+        imgUrl: 'src\\banner\\4\\img.jpg',
+    },
+]
+</script>
 
 <style scoped>
 .carousel-container {

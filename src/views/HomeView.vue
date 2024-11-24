@@ -41,9 +41,9 @@ import { useCartStore } from '@/stores/cart.store'
 const cartStore = useCartStore();
 
 const listSlides = [
-  { id: 1, title: 'Ứng dụng mới', name: 'newApplications' },
-  { id: 2, title: 'Ứng dụng được tải nhiều', name: 'mostDownloadedApplications' },
-  { id: 3, title: 'Ứng dụng giảm giá nhiều nhất', name: 'mostSaleApplications' },
+  { id: 1, title: 'Phần mềm mới', name: 'newApplications' },
+  { id: 2, title: 'Phần mềm được tải nhiều', name: 'mostDownloadedApplications' },
+  { id: 3, title: 'Phần mềm giảm giá nhiều nhất', name: 'mostSaleApplications' },
 ]
 
 const applicationListResponse = ref([]);

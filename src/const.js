@@ -1,5 +1,5 @@
 export const APPLICATION_TYPE = {
-    "APPLICATION": "Ứng dụng",
+    "APPLICATION": "Phần mềm",
     "TEMPLATE": "Mẫu thiết kế",
     "GAME": "Trò chơi",
     "WEB_BROWSERS": "Trình duyệt"

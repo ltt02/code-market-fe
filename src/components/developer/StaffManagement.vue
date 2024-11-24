@@ -22,7 +22,7 @@
                 </div>
                 <!-- Tìm kiếm và Khoá/Mở Khoá tài khoản khách hàng -->
                 <div class="w-full flex">
-                    <div class="w-1/6 mr-2">
+                    <!-- <div class="w-1/6 mr-2">
                         <label class="text-gray-700" for="id">
                             ID:
                         </label>
@@ -35,7 +35,7 @@
                         </label>
                         <input v-model="selectedEmployee.account"
                             class="w-full bg-gray-200 text-gray-800 py-2 px-3 rounded-md focus:outline-none">
-                    </div>
+                    </div> -->
                     <div class="w-1/6 mr-2">
                         <label class="text-gray-700" for="id">
                             Trạng thái
@@ -66,216 +66,453 @@
                         </select>
                     </div> -->
                 </div>
-                <div class="flex items-end mt-2">Tổng số: {{ currentTotalAccount }}</div>
+                <div class="flex items-end mt-2">Tổng số: {{ currentTotalOrder }}</div>
             </div>
         </div>
-        <div class="relative overflow-x-auto custom-scrollbar" style="max-height: 500px;">
-            <table id="table-data" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead
-                    class="fixed-header font-sans text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-4 py-3">
-                            ID
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Tên tài khoản
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Tên nhân viên
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Trạng thái
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Số điện thoại
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Email
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Ngày sinh
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Địa chỉ
-                        </th>
-                        <th scope="col" class="px-4 py-3">
-                            Chức vụ
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(employee, index) in employees" :key="index" @click="selectEmployee(employee)"
-                        class="row-data border-b dark:bg-gray-800 cursor-pointer">
-                        <th scope="row" class="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{ employee.id ? employee.id :
-                                "Chưa cập nhật" }}
-                        </th>
-                        <td class="px-4 py-4">
-                            {{ employee.account ? employee.account :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <!-- <td class="px-6 py-4 overflow-x-auto custom-scrollbar-cell" style="max-width: 150px"> -->
-                        <td class="px-4 py-4">
-                            {{ employee.name ? employee.name :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ employee.locked ? "Đã khoá" :
-                                "Hoạt động" }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ employee.phone ? employee.phone :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ employee.email ? employee.email :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <!-- <td class="px-6 py-4 overflow-x-auto custom-scrollbar-cell" style="max-width: 150px"> -->
-                        <td class="px-4 py-4">
-                            {{ employee.dob ? employee.dob :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <td class="px-4 py-4 overflow-x-auto custom-scrollbar-cell" style="max-width: 150px">
-                            {{ employee.address ? employee.address :
-                                "Chưa cập nhật" }}
-                        </td>
-                        <td class="px-4 py-4">
-                            {{ employee.userType ? employee.userType :
-                                "Chưa cập nhật" }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <DataTable v-model:expandedRows="expandedRows" v-model:selection="selectedApplication"
+            :value="orderListResponse" tableStyle="min-width: 50rem" stripedRows paginator :rows="5"
+            :rowsPerPageOptions="[5, 10, 20, 50]" sortable sortMode="multiple" removableSort :loading="loading"
+            scrollable scrollHeight="600px" ref="dt" dataKey="id" @rowExpand="onRowExpand" @rowCollapse="onRowCollapse"
+            :row-class="rowClass">
+            <template #header>
+                <div class="flex flex-wrap justify-end gap-2">
+                    <Button text icon="pi pi-plus" label="Expand All" @click="expandAll" />
+                    <Button text icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
+                </div>
+            </template>
+            <template #empty> Không tìm thấy đơn hàng nào. </template>
+            <template #loading> Đang tải. Vui lòng chờ. </template>
+            <Column expander style="width: 5rem">
+                <template #body="slotProps">
+                    <div v-if="slotProps.data.orderDetailsDtoList.length > 0">
+                        <Button />
+                    </div>
+                </template>
+            </Column>
+            <Column sortable field="id" header="ID">
+
+            </Column>
+            <Column sortable field="name" header="Khách hàng">
+                <template #body="{ data }">
+                    {{ data.customer.userName }}
+                </template>
+            </Column>
+            <Column sortable field="total" header="Tổng tiền" bodyStyle="text-align:right">
+                <template #header>
+                    <span class="flex-1 text-right"></span>
+                </template>
+                <template #body="slotProps">
+                    {{ formatNumber(slotProps.data.total) }}
+                </template>
+            </Column>
+
+            <Column sortable field="createDate" header="Ngày mua hàng">
+                <template #body="slotProps">
+                    {{ formatDate(slotProps.data.createDate) }}
+                </template>
+            </Column>
+            <Column sortable field="status" header="Trạng thái">
+                <template #body="slotProps">
+                    <Tag :value="getStatus(slotProps.data.status)" :severity="getSeverity(slotProps.data.status)" />
+                </template>
+            </Column>
+            <template #expansion="slotProps">
+                <div class="p-4">
+                    <h5>Chi tiết đơn hàng #{{ slotProps.data.id }}</h5>
+                    <DataTable :value="slotProps.data.orderDetailDtoList" removableSort>
+                        <Column field="id" header="ID" sortable></Column>
+                        <Column field="application.id" header="Mã phần mềm" sortable></Column>
+                        <Column field="application.name" header="Tên phần mềm" sortable></Column>
+                        <Column field="application.price" header="Giá tiền" sortable bodyStyle="text-align:right">
+                            <template #header>
+                                <span class="flex-1 text-right"></span>
+                            </template>
+                            <template #body="slotProps">
+                                {{ formatNumber(slotProps.data.application.price) }}
+                            </template>
+                        </Column>
+                        <!-- <Column field="status" header="Status" sortable>
+                            <template #body="slotProps">
+                                <Tag :value="slotProps.data.status.toLowerCase()"
+                                    :severity="getOrderSeverity(slotProps.data)" />
+                            </template>
+                        </Column>
+                        <Column headerStyle="width:4rem">
+                            <template #body>
+                                <Button icon="pi pi-search" />
+                            </template>
+                        </Column> -->
+                    </DataTable>
+                </div>
+            </template>
+        </DataTable>
     </div>
 </template>
 
 <script setup lang="ts">
+import ProductAddForm from '@/components/developer/ProductAddForm.vue';
+import ProductUpdateForm from '@/components/developer/ProductUpdateForm.vue';
+import ProductDetails from '@/components/developer/ProductDetails.vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';
+import Row from 'primevue/row';
+import Rating from 'primevue/rating';
+import Tag from 'primevue/tag';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
+import InputText from 'primevue/inputtext';
+import Select from 'primevue/select';
+import MultiSelect from 'primevue/multiselect';
+import ProgressSpinner from 'primevue/progressspinner';
+import Button from 'primevue/button';
+import { FilterMatchMode } from '@primevue/core/api';
+import ApplicationService from "@/services/application.service.js"
+import CartService from "@/services/cart.service.js"
+import { APPLICATION_APPROVAL_STATUS } from '@/const.js';
 import { ref, onBeforeMount } from 'vue';
+import { useProductStore } from '@/stores/application.store';
+import { useToast } from 'primevue/usetoast';
 import axios from 'axios';
 
-interface Employee {
-    id: string,
-    account: string,
-    password: string,
-    name: string,
-    phone: string,
-    email: string,
-    address: string,
-    dob: string,
-    locked: boolean,
-    userType: string,
-}
-const employees = ref<Employee[] | null>(null);
-const selectedEmployee = ref<Employee>({ id: '', account: '', password: '', name: '', phone: '', email: '', address: '', dob: '', locked: false, userType: '' });
+const expandedRows = ref({});
+const toast = useToast();
 
-const currentTotalAccount = ref<number>(0);
-onBeforeMount(async () => {
-    try {
-        const response = await axios.get(`http://localhost:8080/users`);
-        const filteredData = response.data.filter((employee: Employee) => employee.userType === 'staff');
-        employees.value = filteredData;
-        currentTotalAccount.value = employees.value?.length!;
-        console.log(employees.value);
-    } catch (error) {
-        console.error('Lỗi khi lấy thông tin người dùng:', error);
+const productStore = useProductStore();
+
+interface ApplicationObject {
+    id: number,
+    name: String,
+    price: number,
+    downloads: number,
+    storageCapacity: number,
+    applicationCategory: any,
+    applicationFramework: any,
+}
+
+interface OrderDetailObject {
+    id: number,
+    application: ApplicationObject,
+}
+
+const applicationListResponse = ref<ApplicationObject[] | null>(null);
+const orderListResponse = ref<OrderDetailObject[] | null>(null);
+
+const selectedProduct = ref<ApplicationObject>({
+    id: 0,
+    name: '',
+    price: 0,
+    downloads: 0,
+    storageCapacity: 0,
+    applicationCategory: null,
+    applicationFramework: null,
+});
+
+const selectedOrder = ref<OrderDetailObject>({
+    id: 0,
+    name: '',
+    price: 0,
+    downloads: 0,
+    storageCapacity: 0,
+    applicationCategory: null,
+    applicationFramework: null,
+});
+
+const onRowExpand = (event) => {
+    toast.add({
+        severity: 'info',
+        summary: 'Product Expanded',
+        detail: event.data.name,
+        life: 3000,
+    });
+};
+const onRowCollapse = (event) => {
+    toast.add({
+        severity: 'success',
+        summary: 'Product Collapsed',
+        detail: event.data.name,
+        life: 3000,
+    });
+};
+const expandAll = () => {
+    expandedRows.value = orderListResponse.value.reduce(
+        (acc, p) => (acc[p.id] = true) && acc,
+        {}
+    );
+};
+const collapseAll = () => {
+    expandedRows.value = null;
+};
+
+const rowClass = (rowData) => {
+    return rowData.orderDetailDtoList.length > 0 ? "" : "no-expander";
+}
+
+
+const props = defineProps({
+    isShowSidebar: {
+        type: Boolean,
     }
+})
+
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    'country.name': { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    representative: { value: null, matchMode: FilterMatchMode.IN },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS },
+    verified: { value: null, matchMode: FilterMatchMode.EQUALS }
+})
+
+const representatives = ref([
+    { name: 'Amy Elsner', image: 'amyelsner.png' },
+    { name: 'Anna Fali', image: 'annafali.png' },
+    { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
+    { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
+    { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
+    { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
+    { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
+    { name: 'Onyama Limba', image: 'onyamalimba.png' },
+    { name: 'Stephen Shaw', image: 'stephenshaw.png' },
+    { name: 'XuXue Feng', image: 'xuxuefeng.png' }
+])
+
+const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal']);
+
+const loading = ref(false);
+const isLoading = ref(false);
+
+const selectedApplication = ref<ApplicationObject>();
+const currentTotalApplications = ref<number>(0);
+const currentTotalOrder = ref<number>(0);
+const dt = ref();
+const exportCSV = () => {
+    dt.value.exportCSV();
+};
+const getStatus = (statusId) => {
+    switch (statusId) {
+        case null:
+            return "Đang chờ";
+            break;
+        case "SUCCESSFUL":
+            return "Thành công";
+            break;
+        case "REFUNDED":
+            return "Đã hoàn tiền";
+            break;
+        default:
+            break;
+    }
+}
+
+const getSeverity = (status) => {
+    switch (status) {
+        case null:
+            return "warn";
+            break;
+        case "SUCCESSFUL":
+            return "success";
+            break;
+        case "REFUNDED":
+            return "danger";
+            break;
+        default:
+            break;
+    }
+}
+
+const formatNumber = (number) => {
+    return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+const formatDate = (dateString) => {
+
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+const formatStorageCapacity = (bytes) => {
+    if (bytes >= 1024 ** 3) {
+        return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+    } else if (bytes >= 1024 ** 2) {
+        return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
+    } else if (bytes >= 1024) {
+        return `${(bytes / 1024).toFixed(2)} KB`;
+    } else {
+        return `${bytes} B`;
+    }
+}
+
+const retriveProducts = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/applications`);
+        products.value = response.data;
+        currentTotalApplications.value = products.value?.length!;
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin sản phẩm', error);
+    }
+}
+
+const retrieveApplicationListByDeveloperId = async () => {
+    try {
+        isLoading.value = true;
+        // setTimeout(async () => {
+        const developerId = JSON.parse(localStorage.getItem('developer')).id;
+        const response = await ApplicationService.getAllByDeveloperId(developerId);
+        applicationListResponse.value = response.data;
+        currentTotalApplications.value = applicationListResponse.value?.length!;
+        // }, 10000);
+        isLoading.value = false;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const retrieveOrderListByDeveloperId = async () => {
+    try {
+        isLoading.value = true;
+        // setTimeout(async () => {
+        const developerId = JSON.parse(localStorage.getItem('developer')).id;
+        const response = await CartService.getAllOrderByDeveloperId(developerId);
+        orderListResponse.value = response.data;
+        currentTotalOrder.value = orderListResponse.value?.length!;
+        // }, 10000);
+        isLoading.value = false;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+onBeforeMount(async () => {
+    await retrieveApplicationListByDeveloperId();
+    await retrieveOrderListByDeveloperId();
+    // const developer = JSON.parse(localStorage.getItem('developer'))
+    // applicationListResponse.value = developer.applicationList;
 });
 const isNotEnteredID = ref(false);
 const isUpdatedOK = ref(false);
-const blockAndUnblock = async (employee: Employee) => {
+// const blockAndUnblock = async (employee: Employee) => {
+//     try {
+//         let idToSearch = parseInt(selectedEmployee.value.id);
+//         console.log(idToSearch);
+//         if (isNaN(idToSearch)) {
+//             isNotEnteredID.value = true;
+//             setTimeout(() => {
+//                 isNotEnteredID.value = false;
+//             }, 1500);
+//             return;
+//         }
+//         const response = await axios.put(`http://localhost:8080/users/${employee.id}/updateLockedStatus`);
+//         if (response.status === 200) {
+//             let index = employees.value?.findIndex((a) => a.id === employee.id)
+//             employee.locked = !employee.locked;
+//             if (index != undefined && index >= 0) {
+//                 employees.value?.splice(index, 1, employee)
+//                 isUpdatedOK.value = true;
+//                 setTimeout(() => {
+//                     isUpdatedOK.value = false;
+//                 }, 1500);
+//             } else {
+//                 return;
+//             }
+//         } else {
+//             console.error('Error updating lock status');
+//         }
+//     } catch (error) {
+//         console.error('Error updating lock status:', error);
+//     }
+// };
+
+const isNotFoundProductDetail = ref(false);
+// const" = () => {
+//     let idToSearch = parseInt(selectedProduct.value.id);
+//     console.log(idToSearch);
+//     if (isNaN(idToSearch)) {
+//         isNotEnteredID.value = true;
+//         setTimeout(() => {
+//             isNotEnteredID.value = false;
+//         }, 1500);
+//     } else {
+//         const index = productDetails.value?.findIndex(detail => parseInt(detail.id) === idToSearch);
+//         if (index !== undefined && index !== -1) {
+//             const element = document.querySelectorAll('.row-data')[index];
+//             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+//             element.classList.add('found');
+//             setTimeout(() => {
+//                 element.classList.remove('found');
+//             }, 4000);
+//         } else {
+//             isNotFoundProductDetail.value = true;
+//             setTimeout(() => {
+//                 isNotFoundProductDetail.value = false;
+//             }, 1500);
+//         }
+//     }
+// };
+
+const selectProduct = (product: ProductObject) => {
+    selectedProduct.value = { ...product };
+};
+
+const activeAddForm = () => {
+    productStore.setIsShowAddFormClick(true);
+}
+
+const activeUpdateForm = () => {
+    if (selectedProduct.value.id > 0)
+        productStore.setIsShowUpdateFormClick(true);
+}
+const showDetails = async () => {
     try {
-        let idToSearch = parseInt(selectedEmployee.value.id);
-        console.log(idToSearch);
-        if (isNaN(idToSearch)) {
-            isNotEnteredID.value = true;
-            setTimeout(() => {
-                isNotEnteredID.value = false;
-            }, 1500);
-            return;
-        }
-        const response = await axios.put(`http://localhost:8080/users/${employee.id}/updateLockedStatus`);
-        if (response.status === 200) {
-            let index = employees.value?.findIndex((a) => a.id === employee.id)
-            employee.locked = !employee.locked;
-            if (index != undefined && index >= 0) {
-                employees.value?.splice(index, 1, employee)
-                isUpdatedOK.value = true;
-                setTimeout(() => {
-                    isUpdatedOK.value = false;
-                }, 1500);
-            } else {
-                return;
-            }
-        } else {
-            console.error('Error updating lock status');
-        }
+        const response = await axios.get(`http://localhost:8080/products/${selectedProduct.value.id}/details`);
+        productDetails.value = response.data;
+        productDetails.value.forEach(detail => {
+            const imageLinksArray = detail.imageLinks.split(", ");
+            detail.imageLinks = imageLinksArray;
+        })
     } catch (error) {
-        console.error('Error updating lock status:', error);
+        console.error('Lỗi khi lấy thông tin sản phẩm', error);
     }
-};
+    productStore.setIsShowDetails(true);
+}
 
-const isNotFoundEmployee = ref(false);
-const searchEmployee = () => {
-    let idToSearch = parseInt(selectedEmployee.value.id);
-    console.log(idToSearch);
-    if (isNaN(idToSearch)) {
-        isNotEnteredID.value = true;
-        setTimeout(() => {
-            isNotEnteredID.value = false;
-        }, 1500);
-    } else {
-        const index = employees.value?.findIndex(employee => parseInt(employee.id) === idToSearch);
-        if (index !== undefined && index !== -1) {
-            const element = document.querySelectorAll('.row-data')[index];
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            element.classList.add('found');
-            setTimeout(() => {
-                element.classList.remove('found');
-            }, 4000);
-        } else {
-            isNotFoundEmployee.value = true;
-            setTimeout(() => {
-                isNotFoundEmployee.value = false;
-            }, 1500);
-        }
+const reloadDetails = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8080/products/${selectedProduct.value.id}/details`);
+        productDetails.value = response.data;
+        productDetails.value.forEach(detail => {
+            const imageLinksArray = detail.imageLinks.split(", ");
+            detail.imageLinks = imageLinksArray;
+        })
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin sản phẩm', error);
     }
-};
+}
 
-const selectEmployee = (employee: Employee) => {
-    selectedEmployee.value = { ...employee };
-};
-
-const selectedUserType = ref<string>('all');
-
-const filterEmployeesByUserType = () => {
-    currentTotalAccount.value = employees.value?.length!;
-    const table = document.getElementById("table-data");
-    const tr = table?.getElementsByTagName("tr");
-    let tdContent;
-    let temp = 0;
-    if (tr !== undefined) {
-        for (let i = 0; i < tr?.length; i++) {
-            const td = tr[i].getElementsByTagName("td")[2];
-            if (td) {
-                tdContent = td.textContent?.trim();
-                // console.log(tdContent);
-                if (tdContent !== selectedUserType.value && selectedUserType.value !== 'all' && tr != undefined) {
-                    // --currentTotalAccount;
-                    tr[i].style.display = "none";
-                    temp++;
-                } else {
-                    tr[i].style.display = "";
-                }
-            }
-        }
-        currentTotalAccount.value = employees.value?.length! - temp;
-        console.log(currentTotalAccount.value);
+const deteleProduct = async () => {
+    try {
+        const response = await axios.delete(`http://localhost:8080/products/${selectedProduct.value.id}`);
+        Object.keys(selectedProduct).forEach((i) => selectedProduct[i] = null);
+        retriveProducts();
+        return response;
+    } catch (error) {
+        console.error('Lỗi khi xóa sản phẩm', error);
     }
-};
+}
+
 </script>
 <style scoped>
+.p-datatable-table .p-datatable-tbody>tr.no-expander {
+    display: none !important;
+}
+
 .fixed-header {
     position: sticky;
     top: 0;

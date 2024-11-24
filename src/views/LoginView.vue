@@ -25,8 +25,8 @@
         <!-- <div class="max-md:h-[250px] lg:flex-auto bg-[#191a24] flex items-center px-10">
             <img class="w-full h-full object-cover opacity-[35%]" src="../assets/img_login.jpg" alt="" />
         </div> -->
-        <div class="max-md:w-full w-[55%] flex justify-start justify-center mx-auto">
-            <div class="max-md:w-full w-[80%] flex flex-col items-center justify-center h-full px-10 ">
+        <div class="max-md:w-full w-[55%] flex justify-center items-center mx-auto">
+            <div class="max-md:w-full w-[80%] flex flex-col items-center justify-center h-[50%] px-10 shadow-md">
                 <div class="w-full flex flex-col items-center justify-center">
                     <p class="text-3xl font-bold">Đăng nhập</p>
                     <p class="text-base font-medium mt-2">Đăng nhập vào tài khoản của bạn!</p>

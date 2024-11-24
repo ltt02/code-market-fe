@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, inject } from 'vue';
-import { CartService } from "@/services/cart.service";
+import CartService from "@/services/cart.service.ts"
 import OrderCard from "./OrderCard.vue";
+import DataView from 'primevue/dataview';
+import Button from 'primevue/button';
 
-const { cartService }: { cartService: CartService } = inject('cartService')!;
+const formatNumber = (number) => {
+  return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
 
 const responseCode = ref<any>(null);
 
@@ -17,28 +21,28 @@ const orderItems = ref([]);
 
 // Call the function to get the value of the 'paramName' query parameter
 onMounted(async () => {
-  orderItems.value = (await cartService.getAllOrders()).data;
+  orderItems.value = (await CartService.getAllOrders()).data;
 
-  responseCode.value = getQueryParamByName('vnp_ResponseCode');
-  if (responseCode.value == '00') {
-    console.log("Giao dịch thành công");
-    cartService.addOrderToSuccessful(+getQueryParamByName('orderId')!);
-    window.location.href = "http://localhost:8081/account/orders"
-  }
+  // responseCode.value = getQueryParamByName('vnp_ResponseCode');
+  // if (responseCode.value == '00') {
+  //   console.log("Giao dịch thành công");
+  //   cartService.addOrderToSuccessful(+getQueryParamByName('orderId')!);
+  //   window.location.href = "http://localhost:8081/account/orders"
+  // }
 });
 
 
-setTimeout(async () => {
-  isLoading.value = false;
-}, 1000);
+// setTimeout(async () => {
+//   isLoading.value = false;
+// }, 1000);
 
 </script>
 
 <template>
-  <span class="loader" v-show="isLoading"></span>
+  <!-- <span class="loader" v-show="isLoading"></span> -->
   <div class="account-content my-50">
     <div id="info-tab" class="account-info">
-      <h2 class="account-page-title">Lịch sử đơn hàng</h2>
+      <h2 class="account-page-title">Lịch sử mua hàng</h2>
       <!-- <div class="account-page-label">
         Đơn hàng của bạn
         <span class="d-grid justify-content-center">
@@ -47,20 +51,68 @@ setTimeout(async () => {
       </div> -->
       <div>
         <div class="account-page-label">
-          Đơn hàng của bạn<span>: {{ orderItems.length }} đơn hàng</span>
+          Tổng đơn hàng đã mua của bạn<span>: {{ orderItems.length }}</span>
         </div>
-        <div class="orders-body mt-3">
-          <div class="orders-wrapper">
-            <OrderCard v-for="(orderItem, idx) in orderItems" :key="idx" :order="orderItem"/>
-          </div>
-        </div>
+        <DataView :value="orderItems" paginator :rows="2">
+          <template #list="slotProps">
+            <div class="flex flex-col">
+              <div v-for="(item, index) in slotProps.items" :key="index">
+                <div class="flex flex-col p-6 gap-4"
+                  :class="{ 'border-t border-surface-200 dark:border-surface-700': index !== 0 }">
+                  <div class="text-2xl">
+                    <p>Mã đơn hàng: #{{ item.id }}</p>
+                  </div>
+                  <h2 class="text-xl">Nhà phát triển: {{ item.developer.userName }}</h2>
+                  <div v-for="(subItem, index) in item.orderDetailDtoList" class="flex">
+                    <div class="md:w-40 relative">
+                      <img class="block xl:block mx-auto rounded w-full h-full"
+                        :src="subItem.application.applicationImages[0]?.link" :alt="item.name" />
+                      <div class="absolute bg-black/70 rounded-border" style="left: 4px; top: 4px">
+                        <!-- <Tag :value="item.inventoryStatus" :severity="getSeverity(item)"></Tag> -->
+                      </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
+                      <div class="flex flex-row md:flex-col justify-between items-start gap-2 pl-4">
+                        <div>
+                          <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">
+                            {{ item.category }}
+                          </span>
+                          <div class="text-lg font-medium mt-2">{{ subItem.application.name }}</div>
+                        </div>
+                        <div class="bg-surface-100" style="border-radius: 30px">
+                          <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2"
+                            style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
+                            <span v-if="subItem.application.ratings" class="text-surface-900 font-medium text-sm">{{
+                              subItem.application.ratings }}</span>
+                            <span v-else class="text-surface-900 font-medium text-sm">Chưa có đánh giá</span>
+                            <i class="pi pi-star-fill text-yellow-500"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex flex-col md:items-end gap-8">
+                        <span class="text-xl font-bold">{{ formatNumber(subItem.application.price) }} ₫</span>
+                        <div class="flex flex-row-reverse md:flex-row gap-2">
+                          <Button icon="pi pi-heart" severity="danger" outlined></Button>
+                          <Button icon="pi pi-pencil" label="Đánh giá" severity="contrast" :disabled="item.inventoryStatus === 'OUTOFSTOCK'"
+                            class="flex-auto md:flex-initial whitespace-nowrap"></Button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                  <div class="text-xl font-semibold text-right">Thành tiền: <span class="font-bold">{{
+                    formatNumber(item.total) }} ₫</span></div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </DataView>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-
 .loader {
   display: block;
   border-radius: 50%;

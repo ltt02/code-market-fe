@@ -18,7 +18,7 @@
             <div @click="clickProduct()"
                 class="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-gray-600 text-white">
                 <i class="bi bi-house-door-fill"></i>
-                <span class="text-[15px] ml-4 text-gray-200 font-bold">Quản lý kho ứng dụng</span>
+                <span class="text-[15px] ml-4 text-gray-200 font-bold">Quản lý kho phần mềm</span>
             </div>
             <div @click="clickStaff()"
                 class="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-gray-600 text-white">

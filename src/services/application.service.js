@@ -9,6 +9,9 @@ class ApplicationService {
     async getAllByDeveloperId(id) {
         return (await this.api.get(`/developer/${id}`));
     }
+    async getAllByAdmin() {
+        return (await this.api.get(`/admin`));
+    }
     async create(data) {
         return (await this.api.post(data)).data;
     }

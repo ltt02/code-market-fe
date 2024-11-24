@@ -31,13 +31,13 @@
                 </div>
                 <!-- Tìm kiếm và Khoá/Mở Khoá tài khoản khách hàng -->
                 <div class="w-full flex">
-                    <div class="w-1/6 mr-2">
+                    <!-- <div class="w-1/6 mr-2">
                         <label class="text-gray-700" for="id">
                             ID:
                         </label>
                         <input v-model="selectedProduct.id"
                             class="input-id w-full bg-gray-200 text-gray-800 py-2 px-3 rounded-md focus:outline-none">
-                    </div>
+                    </div> -->
                     <!-- <div class="mr-2">
                         <label class="text-gray-700" for="id">
                             Tên sản phẩm:
@@ -56,15 +56,15 @@
                         </button>
                         <button @click="activeAddForm"
                             class="mr-2 bg-green-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
-                            Thêm ứng dụng
+                            Thêm phần mềm
                         </button>
                         <button @click="activeUpdateForm"
                             class="mr-2 bg-blue-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
-                            Cập nhật ứng dụng
+                            Cập nhật phần mềm
                         </button>
                         <button @click="deteleProduct"
                             class="mr-2 bg-red-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
-                            Xóa ứng dụng
+                            Xóa phần mềm
                         </button>
                         <button @click="exportCSV($event)"
                             class="mr-2 bg-purple-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
@@ -85,7 +85,7 @@
                             ID
                         </th>
                         <th scope="col" class="px-4 py-3">
-                            Tên ứng dụng
+                            Tên phần mềm
                         </th>
                         <th scope="col" class="px-4 py-3 text-right">
                             Dung lượng (MB)
@@ -143,7 +143,7 @@
         </div> -->
         <DataTable v-model:selection="selectedApplication" :value="applicationListResponse"
             tableStyle="min-width: 50rem" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" sortable
-            sortMode="multiple" removableSort :loading="loading" scrollable ref="dt">
+            sortMode="multiple" removableSort :loading="loading" scrollable scrollHeight="600px" ref="dt">
 
             <!-- <template #header>
                 <div class="flex justify-end">
@@ -155,13 +155,15 @@
                     </IconField>
                 </div>
             </template> -->
-            <template #empty> Không tìm thấy ứng dụng. </template>
+            <template #empty> Không tìm thấy phần mềm. </template>
             <template #loading> Đang tải. Vui lòng chờ. </template>
             <Column selectionMode="single" headerStyle="width: 3rem"></Column>
-            <Column sortable field="id" header="ID">
-
+            <Column sortable field="id" header="ID" bodyStyle="text-align:right">
+                <template #header>
+                    <span class="flex-1 text-right"></span>
+                </template>
             </Column>
-            <Column sortable field="name" header="Tên ứng dụng">
+            <Column sortable field="name" header="Tên phần mềm">
                 <template #body="{ data }">
                     {{ data.name }}
                 </template>

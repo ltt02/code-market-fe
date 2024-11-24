@@ -25,9 +25,9 @@
         <!-- Product Grid -->
         <div class="flex-1 md:ml-8">
           <!-- <h1 class="text-3xl font-bold mb-4">Các mẫu thiết kế Flutter, Tải về mã nguồn</h1>
-          <p class="text-gray-600 mb-6">Các mẫu thiết kế Flutter, Ứng dụng di động, Mã nguồn, UX, Bộ dụng cụ UI, Mã
-            nguồn ứng dụng. Hãy bắt đầu việc tạo ra
-            ứng dụng di động của bản thân bạn trong hôm nay! Khám phá chợ ứng dụng Flutter #1 để mua hoặc tải về các mẫu
+          <p class="text-gray-600 mb-6">Các mẫu thiết kế Flutter, Phần mềm di động, Mã nguồn, UX, Bộ dụng cụ UI, Mã
+            nguồn phần mềm. Hãy bắt đầu việc tạo ra
+            phần mềm di động của bản thân bạn trong hôm nay! Khám phá chợ phần mềm Flutter #1 để mua hoặc tải về các mẫu
             thiết kế Flutter cao cấp và miễn phí</p> -->
 
           <!-- Search and Tags -->
@@ -95,7 +95,7 @@ const filters = ref([
   }
 ])
 
-const tags = ['Ứng dụng Flutter', 'Mẫu thiết kế Flutter', 'Bộ UI Flutter', 'Flutter UX', 'Bộ ứng dụng UI Flutter', 'Chủ đề Flutter', 'Flutterflow', 'Thiết kế Flutter', 'Bộ dụng cụ Flutter']
+const tags = ['Phần mềm Flutter', 'Mẫu thiết kế Flutter', 'Bộ UI Flutter', 'Flutter UX', 'Bộ phần mềm UI Flutter', 'Chủ đề Flutter', 'Flutterflow', 'Thiết kế Flutter', 'Bộ dụng cụ Flutter']
 
 const products = [
   { id: 1, title: 'Flutterflow Template Personal...', price: 20, image: 'https://placehold.co/192x256', description: 'A beautiful personal portfolio template' },

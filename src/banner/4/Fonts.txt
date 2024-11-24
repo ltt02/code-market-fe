@@ -1,0 +1,9 @@
+Fonts used in this design:
+
+Font: Noto Sans
+Author: Google
+Url: https://fonts.google.com/specimen/Noto+Sans
+
+Font: Montserrat
+Author: Julieta Ulanovsky,Sol Matas,Juan Pablo del Peral,Jacques Le Bailly
+Url: https://fonts.google.com/specimen/Montserrat

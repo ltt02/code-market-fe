@@ -253,6 +253,13 @@ class CartService {
     );
   }
 
+  async getAllOrderByDeveloperId(developerId: Number) {
+    const baseUri = this.getBaseUri();
+    return axios.get(
+      `${baseUri}/customers/1/orders/developer/${developerId}`
+    );
+  }
+
   async getAllOrders() {
     const baseUri = this.getBaseUri();
     return await axios.get(`${baseUri}/customers/${this.customerId}/orders`);

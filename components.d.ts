@@ -25,6 +25,9 @@ declare module 'vue' {
     ElMain: typeof import('element-plus/es')['ElMain']
     ElRow: typeof import('element-plus/es')['ElRow']
     FooterComponent: typeof import('./src/components/common/FooterComponent.vue')['default']
+    GeneralApplicationManagement: typeof import('./src/components/admin/GeneralApplicationManagement.vue')['default']
+    GeneralOrderManagement: typeof import('./src/components/admin/GeneralOrderManagement.vue')['default']
+    GeneralStatistic: typeof import('./src/components/admin/GeneralStatistic.vue')['default']
     HeaderMenu: typeof import('./src/components/common/HeaderMenu.vue')['default']
     OrderCard: typeof import('./src/components/profile/account-content/OrderCard.vue')['default']
     OrderContent: typeof import('./src/components/profile/account-content/OrderContent.vue')['default']
@@ -43,7 +46,9 @@ declare module 'vue' {
     SearchInput: typeof import('./src/components/common/SearchInput.vue')['default']
     StaffManagement: typeof import('./src/components/developer/StaffManagement.vue')['default']
     Statistic: typeof import('./src/components/developer/Statistic.vue')['default']
+    SysAdPersonalInformation: typeof import('./src/components/admin/SysAdPersonalInformation.vue')['default']
     ThemeSwitcher: typeof import('./src/components/common/ThemeSwitcher.vue')['default']
+    UserManagement: typeof import('./src/components/admin/UserManagement.vue')['default']
     VoucherContent: typeof import('./src/components/profile/account-content/VoucherContent.vue')['default']
   }
 }

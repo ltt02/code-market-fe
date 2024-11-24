@@ -153,7 +153,7 @@ const props = defineProps({
 })
 
 const userMenu = [
-    { id: 1, name: 'Thông tin tài khoản', url: '/user', componentName: 'profile' },
+    { id: 1, name: 'Thông tin tài khoản', url: '/account/info', componentName: 'userInfo' },
     { id: 2, name: 'Đăng xuất', url: '/logout', componentName: 'login' },
 ]
 

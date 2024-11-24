@@ -422,7 +422,7 @@ import { useCartStore } from '@/stores/cart.store'
 const cartStore = useCartStore();
 
 const listSlides = [
-    { id: 1, title: 'Ứng dụng bạn có thể quan tâm', name: 'newApplications' },
+    { id: 1, title: 'Phần mềm bạn có thể quan tâm', name: 'newApplications' },
 ]
 
 const applicationListResponse = ref([]);
@@ -492,7 +492,7 @@ const addToCart = async () => {
             toastExistedContainer.style.display = 'none';
         }, 1000);
     } else {
-        cartStore.addCartDetail(response.data);
+        cartStore.addToCartDetail(response.data);
         toastContainer.style.display = 'none';
         toastContainer.style.display = '';
         setTimeout(function () {
