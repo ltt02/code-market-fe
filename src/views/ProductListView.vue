@@ -82,7 +82,7 @@ const navItems = ['WordPress', 'React', 'Bootstrap', 'Android', 'React Native', 
 
 const filters = ref([
   {
-    name: 'Framework',
+    name: 'Công nghệ  ',
     options: []
   },
   {

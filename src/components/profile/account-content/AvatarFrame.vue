@@ -76,7 +76,7 @@ const handleImageUpload = (file: File) => {
 
 onMounted(() => {
     // Lấy thông tin tài khoản từ localStorage
-    const storedAccount = localStorage.getItem('account');
+    const storedAccount = localStorage.getItem('user');
     if (storedAccount) {
         accountInfo.value = JSON.parse(storedAccount);
         avatar.value = accountInfo.value!.avatar || null;

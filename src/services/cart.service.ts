@@ -80,6 +80,7 @@ class CartService {
     }
   }
 
+
   async updateOrder(newOrder) {
     try {
       const baseUri = this.getBaseUri();
@@ -211,11 +212,11 @@ class CartService {
     }
 
     const response = await this.getOrderById(orderId);
-
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentId = urlParams.get('paymentId');
     let request = {
-      ...response.data,
-      createDate: null,
       status: "SUCCESSFUL",
+      paymentId: paymentId,
     };
 
     localStorage.removeItem("amount");

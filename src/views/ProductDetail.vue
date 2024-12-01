@@ -173,12 +173,6 @@
                                             </a>
                                         </div> -->
                                         <div class="aside-button-list">
-                                            <button
-                                                class="aside-button buy-now bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-full transition-colors duration-200">
-                                                <span>
-                                                    <span>Mua</span>
-                                                </span>
-                                            </button>
                                             <button class="aside-button add-to-cart" @click.prevent="addToCart()">
                                                 <span>
                                                     <span>Thêm vào giỏ hàng</span>

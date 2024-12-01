@@ -26,7 +26,7 @@
             <img class="w-full h-full object-cover opacity-[35%]" src="../assets/img_login.jpg" alt="" />
         </div> -->
         <div class="max-md:w-full w-[55%] flex justify-center items-center mx-auto">
-            <div class="max-md:w-full w-[80%] flex flex-col items-center justify-center h-[50%] px-10 shadow-md">
+            <div class="max-md:w-full w-[80%] flex flex-col items-center justify-center h-fit px-10 shadow-md py-6">
                 <div class="w-full flex flex-col items-center justify-center">
                     <p class="text-3xl font-bold">Đăng nhập</p>
                     <p class="text-base font-medium mt-2">Đăng nhập vào tài khoản của bạn!</p>

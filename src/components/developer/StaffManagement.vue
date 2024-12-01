@@ -83,11 +83,11 @@
             <template #empty> Không tìm thấy đơn hàng nào. </template>
             <template #loading> Đang tải. Vui lòng chờ. </template>
             <Column expander style="width: 5rem">
-                <template #body="slotProps">
-                    <div v-if="slotProps.data.orderDetailsDtoList.length > 0">
+                <!-- <template #body="slotProps">
+                    <div v-if="slotProps.data.orderDetailsDtoList?.length > 0">
                         <Button />
                     </div>
-                </template>
+                </template> -->
             </Column>
             <Column sortable field="id" header="ID">
 
@@ -120,7 +120,6 @@
                 <div class="p-4">
                     <h5>Chi tiết đơn hàng #{{ slotProps.data.id }}</h5>
                     <DataTable :value="slotProps.data.orderDetailDtoList" removableSort>
-                        <Column field="id" header="ID" sortable></Column>
                         <Column field="application.id" header="Mã phần mềm" sortable></Column>
                         <Column field="application.name" header="Tên phần mềm" sortable></Column>
                         <Column field="application.price" header="Giá tiền" sortable bodyStyle="text-align:right">

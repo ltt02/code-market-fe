@@ -1,4 +1,18 @@
 <template>
+    <Dialog v-model:visible="visible" modal header="Xác nhận" :style="{ width: '25rem' }">
+        <!-- <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span> -->
+        <!-- <div class="flex items-center gap-4 mb-4">
+            <label for="username" class="font-semibold w-24">Username</label>
+            <InputText id="username" class="flex-auto" autocomplete="off" />
+        </div> -->
+        <div class="flex items-center gap-4 mb-8">
+            <p>Bạn có chắc chắn muốn thêm phần mềm mới này không?</p>
+        </div>
+        <div class="flex justify-end gap-2">
+            <Button type="button" label="Không" severity="secondary" @click="visible = false"></Button>
+            <Button type="button" label="Có" @click="visible = false"></Button>
+        </div>
+    </Dialog>
     <div class="product-form__float" :class="productStore.isShowAddFormClick ? 'is-active' : ''">
         <div class="container flex justify-center items-center" :class="{ 'max-w-full': !props.isShowSidebar }">
             <div class="product-form-container custom-scrollbar">
@@ -59,18 +73,20 @@
                         </div> -->
                         <div class="grid-view">
                             <div class="grid-column six-twelfths">
-                                <label for="productType">Framework:</label>
+                                <label for="productType">Công nghệ:</label>
                                 <MultiSelect v-model="selectedFrameworkOptionList" :options="frameworkList"
                                     optionLabel="name" filter placeholder="Chọn framework:" :maxSelectedLabels="4"
                                     class="w-full font-medium" overlayClass="custom-scrollbar"
-                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" 
+                                    :invalid="selectedFrameworkOptionList?.length === 0"/>
                             </div>
                             <div class="grid-column six-twelfths">
                                 <label for="productType">Lĩnh vực:</label>
                                 <MultiSelect v-model="selectedCategoryOptionList" :options="categoryList"
                                     optionLabel="name" filter placeholder="Chọn lĩnh vực:" :maxSelectedLabels="4"
                                     class="w-full font-medium" overlayClass="custom-scrollbar"
-                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" 
+                                    :invalid="selectedCategoryOptionList?.length === 0"/>
                             </div>
                         </div>
                         <div class="grid-view">
@@ -115,7 +131,8 @@
                                 <MultiSelect v-model="selectedPlatformOptionList" :options="platformList"
                                     optionLabel="name" filter placeholder="Chọn platform:" :maxSelectedLabels="4"
                                     class="w-full font-medium" overlayClass="custom-scrollbar"
-                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" 
+                                    :invalid="selectedPlatformOptionList?.length === 0"/>
                             </div>
                         </div>
                         <div class="grid-view">
@@ -154,16 +171,40 @@
         </div>
         <div class="product-form__background" @click="closeProductAddForm"></div>
     </div>
+    <div class="card flex justify-center">
+        <Toast />
 
+        <Form v-slot="$form" :initialValues :resolver :validateOnValueUpdate="false" :validateOnBlur="true" :validateOnMount="['firstName']" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
+            <div class="flex flex-col gap-1">
+                <InputText name="username" type="text" placeholder="Username" fluid />
+                <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{ $form.username.error.message }}</Message>
+            </div>
+            <div class="flex flex-col gap-1">
+                <InputText name="firstName" type="text" placeholder="First Name" fluid :formControl="{ validateOnValueUpdate: true }" />
+                <Message v-if="$form.firstName?.invalid" severity="error" size="small" variant="simple">{{ $form.firstName.error.message }}</Message>
+            </div>
+            <div class="flex flex-col gap-1">
+                <InputText name="lastName" type="text" placeholder="Last Name" fluid />
+                <Message v-if="$form.lastName?.invalid" severity="error" size="small" variant="simple">{{ $form.lastName.error.message }}</Message>
+            </div>
+            <Button type="submit" severity="secondary" label="Submit" />
+        </Form>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
+import { Form } from '@primevue/forms';
 import Editor from 'primevue/editor';
 import FileUpload from 'primevue/fileupload';
 import MultiSelect from 'primevue/multiselect';
 import InputNumber from 'primevue/inputnumber';
+import Dialog from 'primevue/dialog';
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
+import Toast from 'primevue/toast';
+import Message from 'primevue/message';
 import { ref, computed, onBeforeMount, toRaw } from 'vue';
 import { useProductStore } from '@/stores/application.store';
 import ProductService from "@/services/application.service";
@@ -173,7 +214,41 @@ import ApplicationTypeService from "@/services/application_type.service.ts"
 import ApplicationpPlatformService from "@/services/application_platform.service.ts"
 
 import axios from 'axios';
+import { useToast } from 'primevue/usetoast';
 
+const toast = useToast();
+
+const initialValues = ref({
+    username: '',
+    firstName: '',
+    lastName: ''
+});
+
+const resolver = ({ values }) => {
+    const errors = {};
+
+    if (!values.username) {
+        errors.username = [{ message: 'Username is required.' }];
+    }
+
+    if (!values.name) {
+        errors.firstName = [{ message: 'First name is required.' }];
+    }
+
+    if (!values.surname) {
+        errors.lastName = [{ message: 'Last name is required.' }];
+    }
+
+    return {
+        errors
+    };
+};
+
+const onFormSubmit = ({ valid }) => {
+    if (valid) {
+        toast.add({ severity: 'success', summary: 'Form is submitted.', life: 3000 });
+    }
+}
 const emit = defineEmits(['add-product-done']);
 
 const props = defineProps({
@@ -209,6 +284,8 @@ const applicationForAdding = ref<ApplicationObject>({
     images: [],
     authorId: JSON.parse(localStorage.getItem('developer')).id,
 });
+
+const visible = ref(false);
 
 const productStore = useProductStore();
 
@@ -339,6 +416,8 @@ const handleImagesInputRemove = async (event) => {
 
 const addApplication = async () => {
     try {
+        visible.value = true;
+
         const formData = new FormData();
         formData.append("name", applicationForAdding.value.name);
         formData.append("price", applicationForAdding.value.price);
@@ -382,6 +461,8 @@ const addApplication = async () => {
                 "Content-Type": "multipart/form-data",
             },
         });
+
+        
 
         closeProductAddForm();
         emit('add-product-done');
