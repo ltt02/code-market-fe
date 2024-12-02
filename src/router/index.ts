@@ -5,6 +5,7 @@ import ProductCart from "@/views/ProductCart.vue";
 import ProductListView from "@/views/ProductListView.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import RegisterDeveloperView from "@/views/RegisterDeveloperView.vue";
 import UserInfo from "@/views/UserInfo.vue";
 import DeveloperPage from "@/views/DeveloperPage.vue";
 import SysAdminPage from "@/views/SysAdminPage.vue";
@@ -43,6 +44,11 @@ const router = createRouter({
       path: "/register",
       name: "register",
       component: RegisterView,
+    },
+    {
+      path: "/register-dev",
+      name: "registerDev",
+      component: RegisterDeveloperView,
     },
     {
       path: "/profile",

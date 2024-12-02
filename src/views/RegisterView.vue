@@ -15,8 +15,8 @@
         <!-- <div class="max-md:h-[250px] lg:flex-auto bg-[#191a24] flex items-center px-10">
             <img class="w-full h-full object-cover opacity-[45%]" src="@/assets/img_register.jpg" alt="" />
         </div> -->
-        <div class="max-md:w-full w-[65%] flex justify-start justify-center mx-auto">
-            <div class="max-md:w-full w-[80%] flex flex-col items-center justify-center h-full px-10">
+        <div class="max-md:w-full w-[65%] flex justify-center items-center mx-auto">
+            <div class="max-md:w-full w-[80%] flex flex-col items-center justify-center h-fit px-10 shadow-md py-6">
                 <div class="w-full flex flex-col items-center justify-center">
                     <p class="text-4xl font-bold">Đăng ký</p>
                     <p class="text-base font-medium mt-2">Hãy đăng ký và thoả thích mua sắm!</p>
@@ -37,6 +37,26 @@
                             style-custom="border-[#AFA2C3] py-3 p-2 border-[1px] border-[#3E334E] cursor-text"
                             is-required placeholder=" Nhập lại mật khẩu xác nhận..." type="password" />
                     </div>
+                    <div class="w-full mt-3 flex gap-3">
+                        <AInput v-model="fullName" name="fullName" label="Họ và tên"
+                            style-custom="border-[#AFA2C3] py-3 p-2 border-[1px] border-[#3E334E] cursor-text"
+                            is-required placeholder=" Nhập họ và tên..." />
+                        <AInput v-model="email" name="email" label="Email"
+                            style-custom="border-[#AFA2C3] py-3 p-2 border-[1px] border-[#3E334E] cursor-text"
+                            is-required placeholder=" Nhập email..." />
+                    </div>
+                    <div class="w-full mt-3 flex gap-3">
+                        <!-- <div class="flex flex-col gap-1">
+                            <InputText name="phone" type="text" placeholder="Nhập số điện thoại..." fluid />
+                            <Message v-if="$form.phone?.invalid" severity="error" size="small" variant="simple">{{
+                                $form.phone.error.message }}</Message>
+                        </div> -->
+                        <div class="flex flex-col gap-1">
+                            <label for="buttondisplay" class="font-bold block mb-2"> Ngày sinh </label>
+                            <DatePicker inputClass="border-[#AFA2C3] py-3 p-2 border-[1px]" v-model="icondisplay"
+                                showIcon iconDisplay="input" :maxDate="maxDate" showButtonBar dateFormat="dd/mm/yy" />
+                        </div>
+                    </div>
                     <div class="w-full flex gap-3 mt-5">
                         <button @click="onRegister"
                             class="bg-[#3E334E] text-white flex-[1] w-full py-3 font-bold rounded-lg">
@@ -46,6 +66,15 @@
                             class="block text-center border-[1px] border-[#3E334E] text-[#3E334E] flex-[1] w-full font-bold py-3 rounded-lg">
                             Đăng nhập
                         </RouterLink>
+                    </div>
+                    <div class="w-full flex justify-center gap-3 mt-4">HOẶC </div>
+                    <div class="w-full flex gap-3 mt-3">
+                        <div class="flex justify-center w-full">
+                            <RouterLink to="/register-dev"
+                                class="social-button flex items-center bg-[#3E334E] text-white border border-gray-300 rounded shadow-md max-w-xs px-6 py-2 text-sm font-medium hover:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                <span>Đăng ký trở thành nhà phát triển</span>
+                            </RouterLink>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,13 +87,34 @@ import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { Form } from '@primevue/forms';
 import AInput from '@/components/form/AInput.vue';
+import DatePicker from 'primevue/datepicker';
+import InputText from 'primevue/inputtext';
+import Message from 'primevue/message';
 import { ref } from 'vue';
 // import bcrypt from 'bcryptjs';
 
 const isRegisterFailed = ref(false);
 const isRegisterOk = ref(false);
 const router = useRouter();
+
+let today = new Date();
+let month = today.getMonth();
+let year = today.getFullYear();
+let prevMonth = (month === 0) ? 11 : month - 1;
+let prevYear = (prevMonth === 11) ? year - 1 : year;
+let nextMonth = (month === 11) ? 0 : month + 1;
+let nextYear = (nextMonth === 0) ? year + 1 : year;
+
+const date = ref();
+const minDate = ref(new Date());
+const maxDate = ref(new Date());
+
+minDate.value.setMonth(prevMonth);
+minDate.value.setFullYear(prevYear);
+maxDate.value.setMonth(month);
+maxDate.value.setFullYear(year);
 
 const register = async (data) => {
     try {
@@ -105,6 +155,9 @@ const { handleSubmit } = useForm({
             .string()
             .required('Xác nhận mật khẩu là trường bắt buộc')
             .oneOf([yup.ref('password'), null], 'Mật khẩu không khớp'),
+        fullName: yup
+            .string()
+            .required('Họ và tên là trường bắt buộc')
     }),
 });
 
