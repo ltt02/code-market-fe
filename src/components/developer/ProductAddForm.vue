@@ -77,16 +77,14 @@
                                 <MultiSelect v-model="selectedFrameworkOptionList" :options="frameworkList"
                                     optionLabel="name" filter placeholder="Chọn framework:" :maxSelectedLabels="4"
                                     class="w-full font-medium" overlayClass="custom-scrollbar"
-                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" 
-                                    :invalid="selectedFrameworkOptionList?.length === 0"/>
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
                             </div>
                             <div class="grid-column six-twelfths">
                                 <label for="productType">Lĩnh vực:</label>
                                 <MultiSelect v-model="selectedCategoryOptionList" :options="categoryList"
                                     optionLabel="name" filter placeholder="Chọn lĩnh vực:" :maxSelectedLabels="4"
                                     class="w-full font-medium" overlayClass="custom-scrollbar"
-                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" 
-                                    :invalid="selectedCategoryOptionList?.length === 0"/>
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
                             </div>
                         </div>
                         <div class="grid-view">
@@ -131,8 +129,7 @@
                                 <MultiSelect v-model="selectedPlatformOptionList" :options="platformList"
                                     optionLabel="name" filter placeholder="Chọn platform:" :maxSelectedLabels="4"
                                     class="w-full font-medium" overlayClass="custom-scrollbar"
-                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" 
-                                    :invalid="selectedPlatformOptionList?.length === 0"/>
+                                    emptyFilterMessage="Không tìm thấy!" selectionMessage="abc" display="chip" />
                             </div>
                         </div>
                         <div class="grid-view">
@@ -171,7 +168,7 @@
         </div>
         <div class="product-form__background" @click="closeProductAddForm"></div>
     </div>
-    <div class="card flex justify-center">
+    <!-- <div class="card flex justify-center">
         <Toast />
 
         <Form v-slot="$form" :initialValues :resolver :validateOnValueUpdate="false" :validateOnBlur="true" :validateOnMount="['firstName']" @submit="onFormSubmit" class="flex flex-col gap-4 w-full sm:w-56">
@@ -189,7 +186,7 @@
             </div>
             <Button type="submit" severity="secondary" label="Submit" />
         </Form>
-    </div>
+    </div> -->
 </template>
 
 <script setup lang="ts">
@@ -593,7 +590,7 @@ onBeforeMount(async () => {
 .product-form-container {
     overflow-y: scroll;
     position: relative;
-    height: 850px;
+    height: 700px;
     width: 800px;
     padding: 20px;
     border: 1px solid #ccc;

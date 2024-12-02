@@ -20,52 +20,6 @@
                         <span class="font-medium">Không tìm thấy khách hàng!!!</span>
                     </div>
                 </div>
-                <!-- Tìm kiếm và Khoá/Mở Khoá tài khoản khách hàng -->
-                <div class="w-full flex">
-                    <!-- <div class="w-1/6 mr-2">
-                        <label class="text-gray-700" for="id">
-                            ID:
-                        </label>
-                        <input v-model="selectedEmployee.id"
-                            class="input-id w-full bg-gray-200 text-gray-800 py-2 px-3 rounded-md focus:outline-none">
-                    </div>
-                    <div class="w-1/6 mr-2">
-                        <label class="text-gray-700" for="id">
-                            Tên tài khoản:
-                        </label>
-                        <input v-model="selectedEmployee.account"
-                            class="w-full bg-gray-200 text-gray-800 py-2 px-3 rounded-md focus:outline-none">
-                    </div> -->
-                    <div class="w-1/6 mr-2">
-                        <label class="text-gray-700" for="id">
-                            Trạng thái
-                        </label>
-                        <div
-                            class="input-container w-full bg-gray-200 text-gray-800 py-2 px-3 rounded-md focus:outline-none focus:bg-white">
-                            {{ selectedEmployee?.account == '' ? 'Chọn tk...' :
-                                (selectedEmployee?.locked ? "Đã bị khoá" : "Hoạt động") }}</div>
-                    </div>
-                    <div class="w-2/6 mr-2 flex items-end">
-                        <button @click="blockAndUnblock(selectedEmployee)"
-                            class=" mr-2 bg-gradient-to-b from-green-500 to-sky-300 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            {{ selectedEmployee?.locked ? "Mở khoá" : "Khoá" }}
-                        </button>
-                        <button @click="searchEmployee"
-                            class="mr-2 bg-gradient-to-b from-blue-500 to-sky-300 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Tìm
-                            kiếm</button>
-                    </div>
-                    <!-- <div class="filter-employee w-1/6 mr-2">
-                        <label for="userType" class="text-gray-700">Chức vụ:</label>
-                        <select v-model="selectedUserType" @change="filterEmployeesByUserType" id="userType"
-                            class="w-full bg-gray-200 text-gray-800 py-2 px-3 rounded-md focus:outline-none">
-                            <option value="all">Tất cả</option>
-                            <option value="admin">Admin</option>
-                            <option value="manager">Manager</option>
-                            <option value="senior_manager">Senior Manager</option>
-                            <option value="staff">Staff</option>
-                        </select>
-                    </div> -->
-                </div>
                 <div class="flex items-end mt-2">Tổng số: {{ currentTotalOrder }}</div>
             </div>
         </div>

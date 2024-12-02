@@ -83,11 +83,11 @@
             <template #empty> Không tìm thấy đơn hàng nào. </template>
             <template #loading> Đang tải. Vui lòng chờ. </template>
             <Column expander style="width: 5rem">
-                <template #body="slotProps">
+                <!-- <template #body="slotProps">
                     <div v-if="slotProps.data.orderDetailsDtoList?.length > 0">
                         <Button />
                     </div>
-                </template>
+                </template> -->
             </Column>
             <Column sortable field="id" header="ID">
 
@@ -120,7 +120,6 @@
                 <div class="p-4">
                     <h5>Chi tiết đơn hàng #{{ slotProps.data.id }}</h5>
                     <DataTable :value="slotProps.data.orderDetailDtoList" removableSort>
-                        <Column field="id" header="ID" sortable></Column>
                         <Column field="application.id" header="Mã phần mềm" sortable></Column>
                         <Column field="application.name" header="Tên phần mềm" sortable></Column>
                         <Column field="application.price" header="Giá tiền" sortable bodyStyle="text-align:right">
@@ -375,12 +374,12 @@ const retrieveApplicationListByDeveloperId = async () => {
     }
 }
 
-const retrieveOrderListByDeveloperId = async () => {
+const retrieveOrderList = async () => {
     try {
         isLoading.value = true;
         // setTimeout(async () => {
-        const developerId = JSON.parse(localStorage.getItem('developer')).id;
-        const response = await CartService.getAllOrderByDeveloperId(developerId);
+        // const developerId = JSON.parse(localStorage.getItem('developer')).id;
+        const response = await axios.get(`http://localhost:8080/OrderForEmployee`);
         orderListResponse.value = response.data;
         currentTotalOrder.value = orderListResponse.value?.length!;
         // }, 10000);
@@ -392,7 +391,7 @@ const retrieveOrderListByDeveloperId = async () => {
 
 onBeforeMount(async () => {
     await retrieveApplicationListByDeveloperId();
-    await retrieveOrderListByDeveloperId();
+    await retrieveOrderList();
     // const developer = JSON.parse(localStorage.getItem('developer'))
     // applicationListResponse.value = developer.applicationList;
 });

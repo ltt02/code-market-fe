@@ -10,7 +10,6 @@ declare module 'vue' {
     AccountContent: typeof import('./src/components/profile/account-content/AccountContent.vue')['default']
     AccountContentDisplay: typeof import('./src/components/profile/AccountContentDisplay.vue')['default']
     AccountSideBar: typeof import('./src/components/profile/AccountSideBar.vue')['default']
-    AddressContent: typeof import('./src/components/profile/account-content/AddressContent.vue')['default']
     AInput: typeof import('./src/components/form/AInput.vue')['default']
     ApplicationManagement: typeof import('./src/components/developer/ApplicationManagement.vue')['default']
     AvatarFrame: typeof import('./src/components/profile/account-content/AvatarFrame.vue')['default']
@@ -48,7 +47,6 @@ declare module 'vue' {
     Statistic: typeof import('./src/components/developer/Statistic.vue')['default']
     SysAdPersonalInformation: typeof import('./src/components/admin/SysAdPersonalInformation.vue')['default']
     ThemeSwitcher: typeof import('./src/components/common/ThemeSwitcher.vue')['default']
-    UserManagement: typeof import('./src/components/admin/UserManagement.vue')['default']
     VoucherContent: typeof import('./src/components/profile/account-content/VoucherContent.vue')['default']
   }
 }
