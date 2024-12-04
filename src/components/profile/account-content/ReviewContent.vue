@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { CartService } from '@/services/cart.service';
-// import { ReviewService } from '@/services/review.service';
+import { ReviewService } from '@/services/review.service';
 import { defineProps, inject, ref } from 'vue';
 import type { Review } from './OrderCard.vue';
 
-const { cartService }: { cartService: CartService } = inject('cartService')!;
+import CartService from "@/services/cart.service.js"
 
 const props = defineProps<{
   order: any
@@ -23,7 +22,7 @@ const customerReview = ref<string[]>([]);
 let reviewService = new ReviewService();
 
 setTimeout(async () => {
-  reviews.value = (await reviewService.getAllReviewByCustomerId(cartService.customerId)).data;
+  reviews.value = (await reviewService.getAllReviewByCustomerId(CartService.customerId)).data;
 
   reviews.value = reviews.value.reverse().reduce((accumulator: Review[], current: Review) => {
     let exists = accumulator.find(item => {
@@ -69,7 +68,7 @@ const getAllReviewByOrderDetailId = async (orderDetailId) => {
 
 </script>
 <template>
-  <div class="loader-container" v-if="isLoading"><span class="loader"></span></div>
+  <!-- <div class="loader-container" v-if="isLoading"><span class="loader"></span></div> -->
 
   <div class="account-content my-50">
     <div id="info-tab" class="account-info">

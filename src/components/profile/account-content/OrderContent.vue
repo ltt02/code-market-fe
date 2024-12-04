@@ -4,6 +4,22 @@ import CartService from "@/services/cart.service.ts"
 import OrderCard from "./OrderCard.vue";
 import DataView from 'primevue/dataview';
 import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import Rating from 'primevue/rating';
+import FloatLabel from 'primevue/floatlabel';
+import Textarea from 'primevue/textarea';
+import axios from 'axios';
+
+const isReviewDone = ref(false);
+
+const visible = ref(false);
+
+const ratingValue = ref(1);
+const reviewContent = ref();
+
+const selectedApplication = ref();
+
+const baseUrl = 'http://localhost:8080';
 
 const formatNumber = (number) => {
   return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -18,6 +34,37 @@ const getQueryParamByName = (name: string) => {
 
 const isLoading = ref(true)
 const orderItems = ref([]);
+
+const onReview = async (item) => {
+  selectedApplication.value = {
+    ...item,
+  }
+  visible.value = true;
+}
+
+const addReview = async (data) => {
+  try {
+    const request = {
+      content: reviewContent.value,
+      rate: ratingValue.value,
+      userId: JSON.parse(localStorage.getItem('user')).id,
+    }
+    const response = await axios.post(`${baseUrl}/customers/1/orders/detail/${data.id}`, request);
+
+    if (response.status === 200) {
+      isReviewDone.value = true;
+      visible.value = false;
+      selectedApplication.value = null;
+      reviewContent.value = null;
+      ratingValue.value = null;
+      setTimeout(() => {
+        isReviewDone.value = false;
+      }, 1000)
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 // Call the function to get the value of the 'paramName' query parameter
 onMounted(async () => {
@@ -41,6 +88,12 @@ onMounted(async () => {
 <template>
   <!-- <span class="loader" v-show="isLoading"></span> -->
   <div class="account-content my-50">
+    <!-- Thông báo lỗi -->
+    <div v-if="isReviewDone"
+      class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 text-green-700 p-6 text-center text-lg z-50 rounded-md"
+      role="alert">
+      <span class="font-medium">Đánh giá thành công!</span>
+    </div>
     <div id="info-tab" class="account-info">
       <h2 class="account-page-title">Lịch sử mua hàng</h2>
       <!-- <div class="account-page-label">
@@ -53,6 +106,41 @@ onMounted(async () => {
         <div class="account-page-label">
           Tổng đơn hàng đã mua của bạn<span>: {{ orderItems.length }}</span>
         </div>
+        <Dialog class="review-dialog" v-model:visible="visible" modal header="Edit Profile" :style="{ width: '50rem' }">
+          <template #header>
+            <div class="inline-flex items-center justify-center">
+              <span class="text-2xl font-bold whitespace-nowrap">Đánh giá phần mềm</span>
+            </div>
+          </template>
+          <div class="flex mb-4">
+            <div class="md:w-40 relative">
+              <img class="block xl:block mx-auto rounded w-full h-full"
+                :src="selectedApplication.application.applicationImages[0]?.link"
+                :alt="selectedApplication?.application.name" />
+            </div>
+            <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
+              <div class="flex flex-row md:flex-col justify-between items-start gap-2 pl-4">
+                <div>
+                  <div class="text-lg font-medium">{{ selectedApplication?.application.name }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <span class="text-surface-500 dark:text-surface-400 block mb-4">
+            <Rating v-model="ratingValue" />
+          </span>
+          <div class="flex items-center mb-4">
+            <FloatLabel variant="on">
+              <Textarea id="over_label" v-model="reviewContent" rows="5" cols="80" style="resize: none" />
+              <label for="on_label">Nội dung đánh giá</label>
+            </FloatLabel>
+          </div>
+          <template #footer>
+            <Button label="Trở lại" button severity="secondary" @click="visible = false" autofocus />
+            <Button label="Hoàn thành" button severity="success" @click="addReview(selectedApplication)" autofocus />
+          </template>
+        </Dialog>
         <DataView :value="orderItems" paginator :rows="2">
           <template #list="slotProps">
             <div class="flex flex-col">
@@ -92,9 +180,10 @@ onMounted(async () => {
                       <div class="flex flex-col md:items-end gap-8">
                         <span class="text-xl font-bold">{{ formatNumber(subItem.application.price) }} ₫</span>
                         <div class="flex flex-row-reverse md:flex-row gap-2">
-                          <Button icon="pi pi-heart" severity="danger" outlined></Button>
-                          <Button icon="pi pi-pencil" label="Đánh giá" severity="contrast" :disabled="item.inventoryStatus === 'OUTOFSTOCK'"
-                            class="flex-auto md:flex-initial whitespace-nowrap"></Button>
+                          <!-- <Button icon="pi pi-heart" severity="danger" outlined></Button> -->
+                          <Button icon="pi pi-pencil" label="Đánh giá" severity="contrast"
+                            :disabled="item.inventoryStatus === 'OUTOFSTOCK'"
+                            class="flex-auto md:flex-initial whitespace-nowrap" @click="onReview(subItem)"></Button>
                         </div>
                       </div>
 
@@ -113,6 +202,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.review-dialog .p-rating-option svg {
+  width: 28px;
+  height: 28px;
+}
+
 .loader {
   display: block;
   border-radius: 50%;
@@ -212,167 +306,6 @@ a {
 .order:not(:last-child) {
   margin-bottom: 27px;
 }
-
-/* 
-.order {
-  position: relative;
-  display: block;
-}
-
-.order-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  background-color: #2f5acf;
-  border-radius: 0.5rem;
-  padding: 10px 30px;
-  position: relative;
-  z-index: 2;
-  box-sizing: border-box;
-}
-
-.order-header .order-title {
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.order-title,
-.order-date {
-  margin: 0px;
-}
-
-.order-header .order-date {
-  font-size: 0.8rem;
-}
-
-.order-status-wait {
-  display: flex;
-  padding: 6px 12px;
-  justify-content: center;
-  align-items: center;
-  background-color: #f2fd5d;
-  border-radius: 47px;
-  color: #000;
-}
-
-.order-status-done {
-  display: flex;
-  padding: 6px 12px;
-  justify-content: center;
-  align-items: center;
-  background-color: #57e37f;
-  border-radius: 47px;
-  color: #000;
-}
-
-.order-body {
-  border: 1px solid #d9d9d9;
-  background-color: rgb(232, 232, 232);
-  margin-top: -16px;
-  position: relative;
-  z-index: 1;
-  padding-top: 16px;
-}
-
-.order-item:not(:last-child) {
-  border-bottom: 1px solid #d9d9d9;
-}
-
-.order-item {
-  padding: 1rem 30px;
-  display: flex;
-  width: 100%;
-  position: relative;
-}
-
-.order-item-thumbnail {
-  position: relative;
-  width: 100px;
-  margin-right: 1rem;
-}
-
-.order-item-thumbnail::before {
-  content: "";
-  display: block;
-  padding-top: 111.7647058824%;
-  height: 0;
-  width: 100%;
-}
-
-.order-item-thumbnail img {
-  border-radius: 8px;
-}
-
-.order-item-thumbnail img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-  object-fit: cover;
-}
-
-.order-item-info {
-  flex: 1;
-}
-
-.order-item-title,
-.order-item-price {
-  font-weight: 600;
-}
-
-.order-item-variant-label,
-.order-item-quantity {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.order-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  border: 1px solid #d9d9d9;
-  background-color: rgba(0, 0, 0, 0.1);
-  padding: 0.5rem 30px 0.5rem;
-  border-radius: 0 0 0.5rem 0.5rem;
-  position: relative;
-  z-index: 1;
-  box-sizing: border-box;
-}
-
-.order-footer-left {
-  display: flex;
-}
-
-.order-footer-left .btn {
-  height: auto;
-  padding: 0.5rem 2rem;
-  border-radius: 100vmax;
-  line-height: 1.5;
-  box-sizing: border-box;
-  font-family: "CriteriaCF", "Pangea", sans-serif;
-  margin-right: 10px;
-  border: 2px solid #000;
-  cursor: pointer;
-}
-
-.btn--outline {
-  background-color: transparent;
-  color: #000;
-}
-
-.btn--outline:hover {
-  background-color: #000;
-  color: #fff;
-  border: 2px solid #000;
-}
-
-.order-footer-right {
-  text-align: right;
-} */
 
 *,
 :after,

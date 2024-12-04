@@ -306,14 +306,14 @@
                         </div>
                         <div class="product-detail-body-container">
                             <div class="product-detail-basic-info">
-                                <div class="product-detail-rating">
+                                <!-- <div class="product-detail-rating">
                                     <div class="rating-title">
                                         <h3 class="rating-title-text">
                                             <span>Đánh giá từ {{ formatNumber(application.downloads) }} người
                                                 dùng</span>
                                         </h3>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="product-detail-star">
                                     <div class="star-container">
                                         <div class="star-value">

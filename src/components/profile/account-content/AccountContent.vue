@@ -83,7 +83,7 @@
                     </div>
                 </div>
                 <div class="account-info-field">
-                    <button @click="clickUpdate()" class="btn account-info-btn">
+                    <button @click="showChangePasswordModal = true" class="btn account-info-btn">
                         Đổi mật khẩu
                     </button>
                 </div>
@@ -171,6 +171,58 @@
                     </Form>
                     <div class="form__background z-10" @click.prevent="closeForm"></div>
                 </div>
+
+                <div v-if="showChangePasswordModal" class="fixed inset-0 flex items-center justify-center z-40">
+                    <Form v-slot="$form" :initialValuesForPasswordForm :resolver :validateOnValueUpdate="true" :validateOnBlur="true"
+                        @submit="onFormSubmit" class="flex flex-col gap-4 w-full max-w-3xl mt-5 items-center">
+                        <div
+                            class="z-20 bg-white dark:bg-gray-800 shadow-2xl rounded-lg overflow-hidden max-w-xl pt-10 px-6 pb-4 relative">
+                            <h2 class="text-3xl text-gray-900 dark:text-gray-300 pb-2 font-bold">
+                                Đổi mật khẩu
+                            </h2>
+                            <div class="flex flex-col gap-2 w-full border-gray-400">
+                                <div class="flex flex-col">
+                                    <label class="text-gray-600 dark:text-gray-400">Mật khẩu hiện tại</label>
+                                    <Password v-model="currentPassword" toggleMask :feedback="false"/>
+                                    <Message v-if="$form.currentPassword?.invalid" severity="error" size="small"
+                                        variant="simple">{{ $form.currentPassword.error.message }}</Message>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-gray-600 dark:text-gray-400">Mật khẩu mới</label>
+                                    <Password v-model="newPassword" toggleMask promptLabel="Nhập mật khẩu" weakLabel="Yếu" mediumLabel="Trung bình" strongLabel="Mạnh" />
+                                    <Message v-if="$form.newPassword?.invalid" severity="error" size="small"
+                                        variant="simple">{{ $form.newPassword.error.message }}</Message>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-gray-600 dark:text-gray-400">Nhập lại mật khẩu mới</label>
+                                    <Password v-model="confirmedPassword" toggleMask promptLabel="Nhập mật khẩu" weakLabel="Yếu" mediumLabel="Trung bình" strongLabel="Mạnh" />
+                                    <Message v-if="$form.confirmedPassword?.invalid" severity="error" size="small"
+                                        variant="simple">{{ $form.confirmedPassword.error.message }}</Message>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button @click="changePassword"
+                                        class="py-1.5 px-3 m-1 text-center bg-violet-700 border rounded-md text-white  hover:bg-violet-500 hover:text-gray-100 dark:text-gray-200 dark:bg-violet-700">
+                                        Lưu thay đổi
+                                    </button>
+                                </div>
+                            </div>
+                            <button @click.prevent="showChangePasswordModal = false" class="form__close" style="z-index: 10;">
+                                <svg width="18" height="18" viewBox="0 0 22 22" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <g opacity="0.6">
+                                        <path
+                                            d="M0.710153 1.39081C1.10215 0.719768 1.8828 0.603147 2.4538 1.13033L20.9665 18.2226C21.5375 18.7498 21.6826 19.7211 21.2906 20.3922V20.3922C20.8986 21.0632 20.118 21.1798 19.547 20.6526L1.03426 3.56039C0.463267 3.0332 0.318158 2.06185 0.710153 1.39081V1.39081Z"
+                                            fill="black"></path>
+                                        <path
+                                            d="M0.821701 20.5854C0.421822 19.9218 0.552504 18.9506 1.11359 18.4163L19.4354 0.967765C19.9965 0.433427 20.7755 0.538253 21.1754 1.2019V1.2019C21.5753 1.86555 21.4446 2.83671 20.8835 3.37105L2.56168 20.8196C2.00059 21.3539 1.22158 21.2491 0.821701 20.5854V20.5854Z"
+                                            fill="black"></path>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    </Form>
+                    <div class="form__background z-10" @click.prevent="showChangePasswordModal = false"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -188,6 +240,7 @@ import Dialog from 'primevue/dialog';
 import Message from 'primevue/message';
 import Toast from 'primevue/toast';
 import ProgressSpinner from 'primevue/progressspinner';
+import Password from 'primevue/password';
 import { useToast } from "primevue/usetoast";
 import { zodResolver } from '@primevue/forms/resolvers/zod';
 import { yupResolver } from '@primevue/forms/resolvers/yup';
@@ -203,6 +256,9 @@ const maxDate = ref(new Date());
 const minDate = ref(new Date());
 const visible = ref(false);
 const isDialogOK = ref(false);
+const currentPassword = ref('');
+const newPassword = ref('');
+const confirmedPassword = ref('');
 
 const initialValues = ref({
     fullName: '',
@@ -211,10 +267,21 @@ const initialValues = ref({
     phone: '',
 });
 
+const initialValuesForPasswordForm = ref({
+    currentPassword: '',
+    newPassword: '',
+    confirmedPassword: '',
+});
+
 const showUpdateModal = ref(false);
+const showChangePasswordModal = ref(false);
 const isUpdatedOK = ref(false);
 const isUpdatedFailed = ref(false);
 const isLoading = ref(false);
+
+const changePassword = async () => {
+    
+}
 
 const clickUpdate = () => {
     showUpdateModal.value = true;
@@ -244,6 +311,16 @@ const resolver = ref(yupResolver(
                 'Số điện thoại không đúng định dạng!'
             )
             .required('Số điện thoại không được để trống'),
+        newPassword: yup
+            .string()
+            .matches(/^(?=.*[A-Za-z])(?=.*\d).+$/, 'Mật khẩu phải chứa ít nhất 1 số và 1 chữ cái')
+            .min(8, 'Mật khẩu ít nhất 8 ký tự')
+            .max(20, 'Mật khẩu tối đa 20 ký tự')
+            .required('Mật khẩu là trường bắt buộc'),
+        confirmedPassword: yup
+            .string()
+            .required('Xác nhận mật khẩu là trường bắt buộc')
+            .oneOf([yup.ref('password'), null], 'Mật khẩu nhập lại không khớp'),
     })
 ));
 

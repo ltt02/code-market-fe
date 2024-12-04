@@ -1,15 +1,6 @@
 <template>
     <div class="bg-white rounded-lg">
-        <h3 class="text-xl font-semibold mb-4 comment-title-text">Bình luận ({{ comments.length }})</h3>
-        <div class="mb-8">
-            <textarea v-model="newComment" placeholder="Thêm bình luận..."
-                class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500"
-                rows="3"></textarea>
-            <button @click="submitComment"
-                class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Đăng tải
-            </button>
-        </div>
+        <h3 class="text-xl font-semibold mb-4 comment-title-text">Đánh giá ({{ comments.length }})</h3>
         <div class="space-y-4">
             <div v-for="comment in comments" :key="comment.id" class="flex space-x-3">
                 <img :src="comment.avatar" :alt="`${comment.author}'s avatar`" class="w-10 h-10 rounded-full" />

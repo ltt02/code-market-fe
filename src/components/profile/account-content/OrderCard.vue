@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { OrderDetail } from '@/components/staff/OrderTable.vue';
-import type { CartService } from '@/services/cart.service';
 import { ReviewService } from '@/services/review.service';
 import { defineProps, inject, ref } from 'vue';
 import { ORDER_STATUS, ORDER_STATUS_COLOR } from '../../../constant/order-status.constant';
-const { cartService }: { cartService: CartService } = inject('cartService')!;
+import CartService from "@/services/cart.service.js"
 
 const props = defineProps<{
     order: any
@@ -25,7 +24,7 @@ let changingReviewImages: { id: number, file: File }[] = [];
 const isLoading = ref(false);
 
 setTimeout(async () => {
-    orderDetails.value = (await cartService.getOrderDetailsByOrderId(props.order.id)).data;
+    orderDetails.value = (await CartService.getOrderDetailsByOrderId(props.order.id)).data;
 }, 1000);
 
 const replyContent = ref<string>('');
