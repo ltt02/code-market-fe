@@ -141,18 +141,6 @@
                                         Lưu thay đổi
                                     </button>
                                 </div>
-                                <!-- <Dialog v-model:visible="visible" modal header="Xác nhận" :style="{ width: '25rem' }"
-                                    class="z-50">
-                                    <div class="flex items-center gap-4 mb-8">
-                                        <p>Bạn có chắc chắn muốn thay đổi thông tin không?</p>
-                                    </div>
-                                    <div class="flex justify-end gap-2">
-                                        <Button type="button" label="Không" severity="secondary"
-                                            @click="visible = false"></Button>
-                                        <Button type="submit" label="Có"></Button>
-                                    </div>
-                                </Dialog> -->
-                                <!-- <Button type="submit" severity="secondary" label="Lưu thay đổi" /> -->
                             </div>
                             <button @click.prevent="closeForm" class="form__close" style="z-index: 10;">
                                 <svg width="18" height="18" viewBox="0 0 22 22" fill="none"
@@ -183,19 +171,19 @@
                             <div class="flex flex-col gap-2 w-full border-gray-400">
                                 <div class="flex flex-col">
                                     <label class="text-gray-600 dark:text-gray-400">Mật khẩu hiện tại</label>
-                                    <Password v-model="currentPassword" toggleMask :feedback="false"/>
+                                    <Password name="currentPassword" v-model="currentPassword" toggleMask :feedback="false"/>
                                     <Message v-if="$form.currentPassword?.invalid" severity="error" size="small"
                                         variant="simple">{{ $form.currentPassword.error.message }}</Message>
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-gray-600 dark:text-gray-400">Mật khẩu mới</label>
-                                    <Password v-model="newPassword" toggleMask promptLabel="Nhập mật khẩu" weakLabel="Yếu" mediumLabel="Trung bình" strongLabel="Mạnh" />
+                                    <Password name="newPassword" v-model="newPassword" toggleMask promptLabel="Nhập mật khẩu" weakLabel="Yếu" mediumLabel="Trung bình" strongLabel="Mạnh" />
                                     <Message v-if="$form.newPassword?.invalid" severity="error" size="small"
                                         variant="simple">{{ $form.newPassword.error.message }}</Message>
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-gray-600 dark:text-gray-400">Nhập lại mật khẩu mới</label>
-                                    <Password v-model="confirmedPassword" toggleMask promptLabel="Nhập mật khẩu" weakLabel="Yếu" mediumLabel="Trung bình" strongLabel="Mạnh" />
+                                    <Password name="confirmedPassword" v-model="confirmedPassword" toggleMask promptLabel="Nhập mật khẩu" weakLabel="Yếu" mediumLabel="Trung bình" strongLabel="Mạnh" />
                                     <Message v-if="$form.confirmedPassword?.invalid" severity="error" size="small"
                                         variant="simple">{{ $form.confirmedPassword.error.message }}</Message>
                                 </div>

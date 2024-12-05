@@ -175,7 +175,7 @@ const applicationTypeChartOptions = ref();
 
 const applicationMostSaleListResponse = ref();
 
-const selectedTimeRange = ref();
+const selectedTimeRange = ref({ name: 'Tuần', value: 'week' });
 const startDate = ref();
 const endDate = ref();
 
@@ -200,7 +200,7 @@ const setOrderChartData = (labels = [], dataset1 = [], dataset2 = []) => {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
-        labels: labels.length ? labels : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+        labels: labels.length ? labels : ['Jan', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [
             {
                 label: 'triệu đồng',
@@ -409,23 +409,28 @@ const fetchDataAndUpdateChart = async () => {
 
     try {
         // Replace this with your actual API call
-        const response = await fetch('/api/chart-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                timeRange: selectedTimeRange.value,
-                startDate: startDate.value,
-                endDate: endDate.value,
-            }),
-        });
+        // const response = await fetch('/api/chart-data', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         timeRange: selectedTimeRange.value,
+        //         startDate: startDate.value,
+        //         endDate: endDate.value,
+        //     }),
+        // });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch data');
+        // if (!response.ok) {
+        //     throw new Error('Failed to fetch data');
+        // }
+
+        // const data = await response.json();
+
+        const data = {
+            labels: ['05/12-11/12', '12/12-18/12', '19/12-25/12', '26/12-02/01'],
+            dataset1: [500000, 200000, 1000000, 700000],
         }
-
-        const data = await response.json();
 
         // Update chart data with the fetched data
         orderChartData.value = setOrderChartData(data.labels, data.dataset1, data.dataset2);
