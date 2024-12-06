@@ -16,6 +16,7 @@ declare module 'vue' {
     CarouselSlide: typeof import('./src/components/common/CarouselSlide.vue')['default']
     copy: typeof import('./src/components/developer/ProductAddForm copy.vue')['default']
     Coupon: typeof import('./src/components/common/Coupon.vue')['default']
+    CustomerMessage: typeof import('./src/components/developer/CustomerMessage.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElCarousel: typeof import('element-plus/es')['ElCarousel']
     ElCarouselItem: typeof import('element-plus/es')['ElCarouselItem']

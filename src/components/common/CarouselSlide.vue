@@ -1,8 +1,8 @@
 <template>
     <div class="block text-center carousel-container">
-        <el-carousel height="380px" motion-blur>
+        <el-carousel height="530px" motion-blur>
             <el-carousel-item v-for="item in bannerList" :key="item">
-                <img :src="item.imgUrl" alt="" style="width: 1392px; height: 380px;" />
+                <img :src="item.imgUrl" alt="" style="width: 1440px; height: 530px;" />
                 <!-- <h3 class="small justify-center" text="">{{  }}</h3> -->
             </el-carousel-item>
         </el-carousel>

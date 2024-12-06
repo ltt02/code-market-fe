@@ -1,5 +1,5 @@
 <template>
-  <div class="product-list-container">
+  <div class="product-list-container" :id="'list' + props.listType.id">
     <div class="product-list-title">
       <a href="#">
         <h5 class="">

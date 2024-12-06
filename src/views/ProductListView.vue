@@ -43,10 +43,14 @@
           </div> -->
 
           <!-- Product Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 product-list-view">
+          <div v-if="applicationForRender.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 product-list-view">
             <div v-for="app in applicationForRender" :key="app.id" class="bg-white rounded-lg shadow">
               <ProductCard :application="app" />
             </div>
+          </div>
+
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 product-list-view h-100">
+            <p class="text-3xl font-medium">Không có phần mềm thỏa</p>
           </div>
 
           <!-- Pagination -->
@@ -164,9 +168,7 @@ const queryApplications = computed(() => {
 });
 
 const applicationList = computed(() => {
-  if (filterItemName) {
-    return filteredApplications.value;
-  } else if (queryName) {
+  if (queryName) {
     return queryApplications.value;
   } else {
     return applicationListResponse.value.allApplications;
@@ -176,7 +178,7 @@ const applicationList = computed(() => {
 const retrieveApplicationList = async () => {
   try {
     applicationListResponse.value = await ApplicationService.getAll();
-    applicationForRender.value = applicationListResponse.value.allApplications;
+    applicationForRender.value = applicationListResponse.value.allApplications.filter(app => app.status == 1);
   } catch (error) {
     console.log(error);
   }
@@ -207,7 +209,6 @@ const getTypeList = async () => {
 }
 
 const init = async () => {
-  await getFrameworkList();
   await retrieveApplicationList();
 }
 

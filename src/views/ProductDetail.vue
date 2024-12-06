@@ -215,7 +215,7 @@
                                                     <span>Dung lượng</span>
                                                     <div class="aside-basic-info-value">
                                                         <span>
-                                                            {{ application.storageCapacity }} MB
+                                                            {{ formatNumber(formatStorageCapacity(application.storageCapacity)) }}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -473,6 +473,18 @@ const formatedSalePrice = computed(() => {
 
 const formatNumber = (number) => {
     return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+const formatStorageCapacity =(bytes) => {
+  if (bytes >= 1024 ** 3) {
+    return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+  } else if (bytes >= 1024 ** 2) {
+    return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
+  } else if (bytes >= 1024) {
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  } else {
+    return `${bytes} B`;
+  }
 }
 
 const addToCart = async () => {

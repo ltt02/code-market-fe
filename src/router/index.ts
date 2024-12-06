@@ -3,6 +3,7 @@ import HomeView from "@/views/HomeView.vue";
 import ProductDetail from "@/views/ProductDetail.vue";
 import ProductCart from "@/views/ProductCart.vue";
 import ProductListView from "@/views/ProductListView.vue";
+import ProductSearch from "@/views/ProductSearch.vue";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import RegisterDeveloperView from "@/views/RegisterDeveloperView.vue";
@@ -24,6 +25,11 @@ const router = createRouter({
       path: "/application-list",
       name: "applicationList",
       component: ProductListView,
+    },
+    {
+      path: "/application-search",
+      name: "applicationSearch",
+      component: ProductSearch,
     },
     {
       path: "/application-list/:id",

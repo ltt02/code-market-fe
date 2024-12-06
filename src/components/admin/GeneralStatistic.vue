@@ -69,9 +69,9 @@
                 <div class="mb-4 flex flex-wrap gap-4">
                     <Dropdown v-model="selectedTimeRange" :options="timeRanges" optionLabel="name" placeholder="Tuần"
                         class="w-48" />
-                    <Calendar v-model="startDate" :showIcon="true" placeholder="Ngày bắt đầu" class="w-48"
+                    <Calendar v-model="startDate" :maxDate="maxStartDate" :showIcon="true" placeholder="Ngày bắt đầu" class="w-48"
                         dateFormat="yy/mm/dd" />
-                    <Calendar v-model="endDate" :showIcon="true" placeholder="Ngày kết thúc" class="w-48"
+                    <Calendar @value-change="changeEndDate" v-model="endDate" :maxDate="maxDate" :showIcon="true" placeholder="Ngày kết thúc" class="w-48"
                         dateFormat="yy/mm/dd" />
                     <Button label="Cập nhật" @click="fetchDataAndUpdateChart" />
                 </div>
@@ -187,7 +187,7 @@ const timeRanges = [
 ];
 
 onMounted(async () => {
-    orderChartData.value = setOrderChartData();
+    orderChartData.value = setOrderChartData([], []);
     orderChartOptions.value = setOrderChartOptions();
     userChartData.value = setUserChartData();
     userChartOptions.value = setUserChartOptions();
@@ -196,7 +196,7 @@ onMounted(async () => {
     await setApplicationChartData();
 });
 
-const setOrderChartData = (labels = [], dataset1 = [], dataset2 = []) => {
+const setOrderChartData = (labels, dataset1) => {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
@@ -408,18 +408,12 @@ const fetchDataAndUpdateChart = async () => {
     }
 
     try {
-        // Replace this with your actual API call
-        // const response = await fetch('/api/chart-data', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //         timeRange: selectedTimeRange.value,
-        //         startDate: startDate.value,
-        //         endDate: endDate.value,
-        //     }),
-        // });
+        const request = {
+            period: selectedTimeRange.value.value,
+            startDate: startDate.value,
+            endDate: endDate.value
+        }
+        const response = await axios.post(`${apiUrl}/customers/1/orders/amount-chart`, request);
 
         // if (!response.ok) {
         //     throw new Error('Failed to fetch data');
@@ -427,13 +421,13 @@ const fetchDataAndUpdateChart = async () => {
 
         // const data = await response.json();
 
-        const data = {
-            labels: ['05/12-11/12', '12/12-18/12', '19/12-25/12', '26/12-02/01'],
-            dataset1: [500000, 200000, 1000000, 700000],
-        }
+        // const data = {
+        //     labels: ['05/12-11/12', '12/12-18/12', '19/12-25/12', '26/12-02/01'],
+        //     dataset1: [500000, 200000, 1000000, 700000],
+        // }
 
         // Update chart data with the fetched data
-        orderChartData.value = setOrderChartData(data.labels, data.dataset1, data.dataset2);
+        orderChartData.value = setOrderChartData(response.data.time, response.data.amount);
     } catch (error) {
         console.error('Error fetching data:', error);
         alert('Failed to fetch data. Please try again.');
@@ -546,6 +540,31 @@ const accountAvailable = ref<number>(0);
 const accountLocked = ref<number>(0);
 const topProducts = ref<ProductObject[]>();
 const monthlyRevenues2024 = new Array(12).fill(0);
+
+let today = new Date();
+let month = today.getMonth();
+let year = today.getFullYear();
+let prevMonth = (month === 0) ? 11 : month - 1;
+let prevYear = (prevMonth === 11) ? year - 1 : year;
+let nextMonth = (month === 11) ? 0 : month + 1;
+let nextYear = (nextMonth === 0) ? year + 1 : year;
+
+const date = ref();
+const minDate = ref(startDate?.value || new Date());
+const maxStartDate = ref(new Date());
+const maxDate = ref(new Date());
+
+const changeEndDate = () => {
+    maxStartDate.value = endDate.value;
+    if (endDate.value.getTime() < startDate.value.getTime()) {
+        startDate.value = null;
+    }
+}
+
+minDate.value.setMonth(prevMonth);
+minDate.value.setFullYear(prevYear);
+maxDate.value.setMonth(month);
+maxDate.value.setFullYear(year);
 
 const orders = ref<Order[]>();
 function formatNumberWithCommas(number) {

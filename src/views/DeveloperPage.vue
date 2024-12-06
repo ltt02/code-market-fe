@@ -30,7 +30,7 @@
                 <i class="bi bi-house-door-fill"></i>
                 <span class="text-[15px] ml-4 text-gray-200 font-bold">Thống kê và báo cáo</span>
             </div>
-            <div @click="clickProduct()"
+            <div @click="clickMessage()"
                 class="p-2.5 mt-3 flex items-center rounded-md px-4 duration-300 cursor-pointer hover:bg-gray-600 text-white">
                 <i class="bi bi-house-door-fill"></i>
                 <span class="text-[15px] ml-4 text-gray-200 font-bold">Trao đổi với khách</span>
@@ -83,8 +83,11 @@
                 <div v-if="showStatistic">
                     <Statistic />
                 </div>
+                <div v-if="showMessage">
+                    <CustomerMessage />
+                </div>
                 <div v-if="showProduct">
-                    <ApplicationManagement :is-show-sidebar="showSidebar"/>
+                    <ApplicationManagement />
                 </div>
             </div>
         </div>
@@ -105,6 +108,7 @@ const showSidebar = ref(true);
 const showStatistic = ref(false);
 const showStaff = ref(false);
 const showProduct = ref(false);
+const showMessage = ref(false);
 const showPersonalInfo = ref(true);
 
 const clickPersonalInfo = () => {
@@ -112,6 +116,7 @@ const clickPersonalInfo = () => {
     showStatistic.value = false;
     showStaff.value = false;
     showProduct.value = false;
+    showMessage.value = false;
 }
 
 const clickStaff = () => {
@@ -119,6 +124,7 @@ const clickStaff = () => {
     showStatistic.value = false;
     showStaff.value = true;
     showProduct.value = false;
+    showMessage.value = false;
 }
 
 const clickStatistic = () => {
@@ -126,6 +132,7 @@ const clickStatistic = () => {
     showStatistic.value = true;
     showStaff.value = false;
     showProduct.value = false;
+    showMessage.value = false;
 }
 
 const clickProduct = () => {
@@ -133,6 +140,15 @@ const clickProduct = () => {
     showStatistic.value = false;
     showStaff.value = false;
     showProduct.value = true;
+    showMessage.value = false;
+}
+
+const clickMessage = () => {
+    showPersonalInfo.value = false;
+    showStatistic.value = false;
+    showStaff.value = false;
+    showProduct.value = false;
+    showMessage.value = true;
 }
 
 interface DeveloperInfo {

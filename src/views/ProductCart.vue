@@ -13,8 +13,12 @@
                 </div> -->
             </header>
 
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-4">
+                <div v-if="applicationInCart.length <= 0" class="lg:col-span-2 space-y-4">
+                    <h2 class="text-3xl font-md">Không có phần mềm nào trong giỏ hàng</h2>
+                </div>
+                <div v-else class="lg:col-span-2 space-y-4">
                     <div v-for="item in applicationInCart" :key="item.application?.id"
                         class="shadow-md hover:shadow-lg rounded-lg p-4">
                         <div class="flex items-start space-x-4">
@@ -38,7 +42,7 @@
                                         <div>
                                             <span class="text-xs text-gray-400">{{
                                                 getApplicationType(item.application?.type)
-                                            }}</span>
+                                                }}</span>
                                             <h2 class="text-l font-semibold">{{ item.application?.name }}</h2>
                                         </div>
                                         <span v-if="item.application?.price > 0" class="text-xl">{{
@@ -89,10 +93,14 @@
                             <span>{{ totalPriceFormated }}</span>
                         </div>
                     </div>
-                    <button @click="placeOrder"
-                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded transition-colors">
+                    <!-- <button @click="placeOrder"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded transition-colors"
+                        :disabled="applicationInCart.length <= 0">
                         Thanh toán
-                    </button>
+                    </button> -->
+                    <Button class="w-full" @click="placeOrder" label="Thanh toán" severity="info"
+                        :disabled="applicationInCart.length <= 0" />
+
                 </div>
             </div>
         </div>
@@ -108,6 +116,8 @@ import { ExternalLinkIcon, Coins, InfoIcon, Trash2 } from 'lucide-vue-next'
 import CartService from "@/services/cart.service.ts"
 import { APPLICATION_TYPE } from '@/const.js';
 import { useCartStore } from '@/stores/cart.store'
+import Button from 'primevue/button';
+
 
 const cartStore = useCartStore();
 const cartItems = ref([

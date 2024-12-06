@@ -23,20 +23,9 @@
         <div class="w-2/3 mx-3 overflow-auto " style="max-height: 500px;">
             <div class="shadow-md w-2/3 m-2 px-3 py-4 bg-white rounded-lg font-light overflow-auto"><b
                     class="font-bold">
-                    Mã số sinh viên:</b>
-                {{ developerInfo &&
-                    developerInfo.studentId ? developerInfo.studentId : 'Chưa cập nhật!' }}</div>
-            <div class="shadow-md w-2/3 m-2 px-3 py-4 bg-white rounded-lg font-light overflow-auto"><b
-                    class="font-bold">
                     Họ và tên:</b> {{
                         developerInfo &&
                             developerInfo.fullName ? developerInfo.fullName : 'Chưa cập nhật! ' }}</div>
-            <div class="shadow-md w-2/3 m-2 px-3 py-4 bg-white rounded-lg font-light overflow-auto"><b
-                    class="font-bold">
-                    Chuyên ngành:</b> {{
-                        developerInfo &&
-                            developerInfo.major.name ? developerInfo.major.name : 'Chưa cập nhật!' }}
-            </div>
             <div class="shadow-md w-2/3 m-2 px-3 py-4 bg-white rounded-lg font-light overflow-auto"><b
                     class="font-bold">
                     Có kinh nghiệm làm việc với:</b> {{
@@ -54,11 +43,6 @@
                     Email:</b> {{
                         developerInfo &&
                             developerInfo.email ? developerInfo.email : 'Chưa cập nhật!' }}</div>
-            <div class="shadow-md w-2/3 m-2 px-3 py-4 bg-white rounded-lg font-light overflow-auto"><b
-                    class="font-bold">
-                    Github:</b> {{
-                        developerInfo &&
-                            developerInfo.githubProfile ? developerInfo.githubProfile : 'Chưa cập nhật! ' }}</div>
         </div>
     </div>
 </template>

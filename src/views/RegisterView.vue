@@ -51,11 +51,7 @@
                             <Message v-if="$form.phone?.invalid" severity="error" size="small" variant="simple">{{
                                 $form.phone.error.message }}</Message>
                         </div> -->
-                        <div class="flex flex-col gap-1">
-                            <label for="buttondisplay" class="font-bold block mb-2"> Ngày sinh </label>
-                            <DatePicker inputClass="border-[#AFA2C3] py-3 p-2 border-[1px]" v-model="icondisplay"
-                                showIcon iconDisplay="input" :maxDate="maxDate" showButtonBar dateFormat="dd/mm/yy" />
-                        </div>
+                        z
                     </div>
                     <div class="w-full flex gap-3 mt-5">
                         <button @click="onRegister"

@@ -14,7 +14,7 @@
                     </div>
                 </router-link>
                 <!-- Navigation -->
-                <nav class="hidden md:flex space-x-6">
+                <!-- <nav class="hidden md:flex space-x-6">
                     <div v-for="item in navItems" :key="item.id" @click.stop="toggleSubNav(item.id)">
                         <a :id="item.id"
                             class="text-md font-medium hover:text-blue-400 transition-colors duration-200 flex items-center cursor-pointer">
@@ -35,12 +35,19 @@
                             </ul>
                         </div>
                     </div>
+                </nav> -->
+
+                <nav class="hidden md:flex space-x-6">
+                        <router-link :to="{ name: 'applicationList' }">Danh mục</router-link>
+                        <p class="cursor-pointer" @click="">Phần mềm mới</p>
+                        <p class="cursor-pointer" @click="">Phần được tải nhiều</p>
+                        <p class="cursor-pointer" @click="">Phần giá rẻ</p>
                 </nav>
 
                 <div class="flex mx-6">
                     <button v-if="isShowDeveloperBtn" type="button"
                         class="text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        <router-link :to="{ name: 'developer' }">
+                        <router-link :to="{ name: 'developer' }" class="py-2 text-sm text-gray-700 dark:text-gray-400">
                             Dành cho nhà phát triển
                         </router-link>
                     </button>
@@ -49,7 +56,7 @@
                 <!-- Search Bar -->
                 <div class="hidden md:block flex-grow max-w-md mx-6">
                     <div class="relative"
-                        @keyup.enter="router.push({ name: 'applicationList', query: { query: model } })">
+                        @keyup.enter="router.push({ name: 'applicationSearch', query: { query: model } })">
                         <input v-model="model" type="text" placeholder="Tìm kiếm..."
                             class="w-full bg-gray-700 rounded-full py-2 px-4 pl-10 text-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
                         <router-link :to="{ name: 'applicationList', query: { query: model } }">
