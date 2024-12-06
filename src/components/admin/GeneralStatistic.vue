@@ -403,7 +403,7 @@ const setApplicationChartOptions = () => {
 
 const fetchDataAndUpdateChart = async () => {
     if (!selectedTimeRange.value || !startDate.value || !endDate.value) {
-        alert('Please select time range, start date, and end date');
+        alert('Vui lòng nhập điều kiện trước khi Cập nhật');
         return;
     }
 

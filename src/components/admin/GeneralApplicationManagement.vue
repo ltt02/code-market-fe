@@ -3,6 +3,20 @@
         <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8" fill="transparent" animationDuration=".5s"
             aria-label="Custom ProgressSpinner" />
     </div> -->
+    <Dialog v-model:visible="visibleConfirmDialog" modal header="Xác nhận" :style="{ width: '25rem' }">
+        <!-- <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span> -->
+        <!-- <div class="flex items-center gap-4 mb-4">
+            <label for="username" class="font-semibold w-24">Username</label>
+            <InputText id="username" class="flex-auto" autocomplete="off" />
+        </div> -->
+        <div class="flex items-center gap-4 mb-8">
+            <p>Bạn có chắc với thao tác này không?</p>
+        </div>
+        <div class="flex justify-end gap-2">
+            <Button type="button" label="Không" severity="secondary" @click="visibleConfirmDialog = false"></Button>
+            <Button type="button" label="Có" @click="confirm"></Button>
+        </div>
+    </Dialog>
     <div class="product-managemen p-3">
 
         <div class="w-full">
@@ -23,6 +37,16 @@
                         class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 p-6 text-center text-lg z-50 rounded-md"
                         role="alert">
                         <span class="font-medium">Không tìm thấy khách hàng!!!</span>
+                    </div>
+                    <div v-if="isNoSelectedApplication"
+                        class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 p-6 text-center text-lg z-50 rounded-md"
+                        role="alert">
+                        <span class="font-medium">Lỗi!</span> Chưa chọn phần mềm.
+                    </div>
+                    <div v-if="isActionOK"
+                        class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 text-green-700 p-6 text-center text-lg z-50 rounded-md"
+                        role="alert">
+                        <span class="font-medium">Thao tác thành công!</span>
                     </div>
                 </div>
                 <!-- Tìm kiếm và Khoá/Mở Khoá tài khoản khách hàng -->
@@ -50,11 +74,11 @@
                             class="mr-2 bg-gray-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
                             Xem chi tiết
                         </button>
-                        <button @click="activeAddForm"
+                        <button @click="openDialog(1)"
                             class="mr-2 bg-green-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
                             Phê duyệt
                         </button>
-                        <button @click="deteleProduct"
+                        <button @click="openDialog(2)"
                             class="mr-2 bg-red-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
                             Từ chối
                         </button>
@@ -134,7 +158,7 @@
             </table>
         </div> -->
         <DataTable v-model:selection="selectedApplication" :value="applicationListResponse"
-            tableStyle="min-width: 50rem" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" sortable
+            tableStyle="min-width: 50rem" stripedRows paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" sortable
             sortMode="multiple" removableSort :loading="loading" scrollable scrollHeight="600px" ref="dt">
 
             <!-- <template #header>
@@ -249,6 +273,8 @@ import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
 import ProgressSpinner from 'primevue/progressspinner';
+import Dialog from 'primevue/dialog';
+import Button from 'primevue/button';
 import { FilterMatchMode } from '@primevue/core/api';
 import ApplicationService from "@/services/application.service.js"
 import { APPLICATION_APPROVAL_STATUS } from '@/const.js';
@@ -257,6 +283,10 @@ import { useProductStore } from '@/stores/application.store';
 import axios from 'axios';
 
 const productStore = useProductStore();
+const isNoSelectedApplication = ref(false);
+const isActionOK = ref(false);
+const visibleConfirmDialog = ref(false);
+const action = ref(0);
 
 interface ApplicationObject {
     id: number,
@@ -329,6 +359,12 @@ const getStatus = (statusId) => {
         case APPLICATION_APPROVAL_STATUS.REJECTED:
             return "Đã bị từ chối";
             break;
+        case APPLICATION_APPROVAL_STATUS.DELETE_REQUEST:
+            return "Đang yêu cầu được xóa";
+            break;
+        case APPLICATION_APPROVAL_STATUS.DELETED:
+            return "Đã xóa";
+            break;
         default:
             break;
     }
@@ -345,25 +381,106 @@ const getSeverity = (statusId) => {
         case APPLICATION_APPROVAL_STATUS.REJECTED:
             return "danger";
             break;
+        case APPLICATION_APPROVAL_STATUS.DELETE_REQUEST:
+            return "warn";
+            break;
+        case APPLICATION_APPROVAL_STATUS.DELETED:
+            return "secondary";
+            break;
         default:
             break;
     }
+}
+
+
+
+const openDialog = (type: number) => {
+    isNoSelectedApplication.value = false;
+    if (selectedApplication.value) {
+        isNoSelectedApplication.value = false;
+        visibleConfirmDialog.value = true;
+        action.value = type;
+    } else {
+        isNoSelectedApplication.value = true;
+        setTimeout(() => { isNoSelectedApplication.value = false; }, 2000);
+    }
+}
+
+
+const confirm = async () => {
+    if (action.value === 1) {
+        if (selectedApplication.value.status === APPLICATION_APPROVAL_STATUS.REQUESTING) {
+            try {
+                const applicationId = selectedApplication.value.id;
+                const response = await axios.put(`http://localhost:8080/applications/${applicationId}/accept`);
+                if (response.status === 200) {
+                    console.log('Xác nhận thành công')
+                    visibleConfirmDialog.value = false;
+                    isActionOK.value = true;
+                    setTimeout(() => {
+                        isActionOK.value = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Lỗi khi xác nhận', error);
+            }
+        }
+
+        if (selectedApplication.value.status === APPLICATION_APPROVAL_STATUS.DELETE_REQUEST) {
+            try {
+                const applicationId = selectedApplication.value.id;
+                const response = await axios.put(`http://localhost:8080/applications/${applicationId}/delete`);
+                if (response.status === 200) {
+                    console.log('Xóa thành công')
+                    visibleConfirmDialog.value = false;
+                    isActionOK.value = true;
+                    setTimeout(() => {
+                        isActionOK.value = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa', error);
+            }
+        }
+    }
+
+    else if (action.value === 2) {
+        if (selectedApplication.value.status === APPLICATION_APPROVAL_STATUS.REQUESTING 
+            || selectedApplication.value.status === APPLICATION_APPROVAL_STATUS.DELETE_REQUEST) {
+            try {
+                const applicationId = selectedApplication.value.id;
+                const response = await axios.put(`http://localhost:8080/applications/${applicationId}/reject`);
+                if (response.status === 200) {
+                    console.log('Từ chối thành công')
+                    visibleConfirmDialog.value = false;
+                    isActionOK.value = true;
+                    setTimeout(() => {
+                        isActionOK.value = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Lỗi khi từ chối', error);
+            }
+        }
+    }
+
+    await retrieveApplicationList();
 }
 
 const formatNumber = (number) => {
     return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-const formatStorageCapacity =(bytes) => {
-  if (bytes >= 1024 ** 3) {
-    return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
-  } else if (bytes >= 1024 ** 2) {
-    return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
-  } else if (bytes >= 1024) {
-    return `${(bytes / 1024).toFixed(2)} KB`;
-  } else {
-    return `${bytes} B`;
-  }
+const formatStorageCapacity = (bytes) => {
+    if (bytes >= 1024 ** 3) {
+        return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+    } else if (bytes >= 1024 ** 2) {
+        return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
+    } else if (bytes >= 1024) {
+        return `${(bytes / 1024).toFixed(2)} KB`;
+    } else {
+        return `${bytes} B`;
+    }
 }
 
 const retriveProducts = async () => {
@@ -380,9 +497,9 @@ const retrieveApplicationList = async () => {
     try {
         isLoading.value = true;
         // setTimeout(async () => {
-            const response = await ApplicationService.getAllByAdmin();
-            applicationListResponse.value = response.data;
-            currentTotalApplications.value = applicationListResponse.value?.length!;
+        const response = await ApplicationService.getAllByAdmin();
+        applicationListResponse.value = response.data;
+        currentTotalApplications.value = applicationListResponse.value?.length!;
         // }, 10000);
         isLoading.value = false;
     } catch (error) {

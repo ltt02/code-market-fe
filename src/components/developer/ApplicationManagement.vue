@@ -1,12 +1,27 @@
 <template>
     <ProductAddForm @add-product-done="retrieveApplicationListByDeveloperId" :is-show-sidebar="props.isShowSidebar" />
-    <ProductUpdateForm @update-product="retriveProducts" :product-for-updating="selectedProduct" />
+    <ProductUpdateForm v-if="productStore.isShowUpdateFormClick" @update-product="retriveProducts" :current-application="selectedApplication" />
     <ProductDetails @add-detail-done="showDetails" @update-detail-done="showDetails" @reset-details="reloadDetails"
         :product-details="productDetails" :product-id="selectedProduct.id" />
     <!-- <div class="card flex justify-center items-center fixed w-full h-full z-10 bg-gray-400	">
         <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8" fill="transparent" animationDuration=".5s"
             aria-label="Custom ProgressSpinner" />
     </div> -->
+
+    <Dialog v-model:visible="visibleDeleteDialog" modal header="Xác nhận" :style="{ width: '25rem' }">
+        <!-- <span class="text-surface-500 dark:text-surface-400 block mb-8">Update your information.</span> -->
+        <!-- <div class="flex items-center gap-4 mb-4">
+            <label for="username" class="font-semibold w-24">Username</label>
+            <InputText id="username" class="flex-auto" autocomplete="off" />
+        </div> -->
+        <div class="flex items-center gap-4 mb-8">
+            <p>Bạn có chắc chắn muốn gửi yêu cầu xóa phần mềm này không?</p>
+        </div>
+        <div class="flex justify-end gap-2">
+            <Button type="button" label="Không" severity="secondary" @click="visibleDeleteDialog = false"></Button>
+            <Button type="button" label="Có" @click="sendDeleteRequest"></Button>
+        </div>
+    </Dialog>
     <div class="product-managemen p-3">
 
         <div class="w-full">
@@ -23,10 +38,20 @@
                         role="alert">
                         <span class="font-medium">Chưa nhập ID!!!</span>
                     </div>
-                    <div v-if="isNotFoundEmployee"
+                    <!-- <div v-if="isNotFoundEmployee"
                         class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 p-6 text-center text-lg z-50 rounded-md"
                         role="alert">
                         <span class="font-medium">Không tìm thấy khách hàng!!!</span>
+                    </div> -->
+                    <div v-if="isNoSelectedApplication"
+                        class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 text-red-700 p-6 text-center text-lg z-50 rounded-md"
+                        role="alert">
+                        <span class="font-medium">Lỗi!</span> Chưa chọn phần mềm.
+                    </div>
+                    <div v-if="isSendRequestOK"
+                        class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 text-green-700 p-6 text-center text-lg z-50 rounded-md"
+                        role="alert">
+                        <span class="font-medium">Gửi yêu cầu thành công</span>
                     </div>
                 </div>
                 <!-- Tìm kiếm và Khoá/Mở Khoá tài khoản khách hàng -->
@@ -62,7 +87,7 @@
                             class="mr-2 bg-blue-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
                             Cập nhật phần mềm
                         </button>
-                        <button @click="deteleProduct"
+                        <button @click="onDeleteRequest"
                             class="mr-2 bg-red-500 hover:opacity-60 text-white font-bold py-2 px-4 rounded">
                             Xóa phần mềm
                         </button>
@@ -142,7 +167,7 @@
             </table>
         </div> -->
         <DataTable v-model:selection="selectedApplication" :value="applicationListResponse"
-            tableStyle="min-width: 50rem" stripedRows paginator :rows="5" :rowsPerPageOptions="[5, 10, 20, 50]" sortable
+            tableStyle="min-width: 50rem" stripedRows paginator :rows="10" :rowsPerPageOptions="[10, 20, 50]" sortable
             sortMode="multiple" removableSort :loading="loading" scrollable scrollHeight="600px" ref="dt">
 
             <!-- <template #header>
@@ -260,6 +285,8 @@ import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
 import MultiSelect from 'primevue/multiselect';
 import ProgressSpinner from 'primevue/progressspinner';
+import Dialog from 'primevue/dialog';
+import Button from 'primevue/button';
 import { FilterMatchMode } from '@primevue/core/api';
 import ApplicationService from "@/services/application.service.js"
 import { APPLICATION_APPROVAL_STATUS } from '@/const.js';
@@ -268,6 +295,7 @@ import { useProductStore } from '@/stores/application.store';
 import axios from 'axios';
 
 const productStore = useProductStore();
+const visibleDeleteDialog = ref(false);
 
 interface ApplicationObject {
     id: number,
@@ -322,6 +350,8 @@ const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal
 
 const loading = ref(false);
 const isLoading = ref(false);
+const isNoSelectedApplication = ref(false);
+const isSendRequestOK = ref(false);
 
 const selectedApplication = ref<ApplicationObject>();
 const currentTotalApplications = ref<number>(0);
@@ -340,6 +370,12 @@ const getStatus = (statusId) => {
         case APPLICATION_APPROVAL_STATUS.REJECTED:
             return "Đã bị từ chối";
             break;
+        case APPLICATION_APPROVAL_STATUS.DELETE_REQUEST:
+            return "Đang yêu cầu được xóa";
+            break;
+        case APPLICATION_APPROVAL_STATUS.DELETED:
+            return "Đã xóa";
+            break;
         default:
             break;
     }
@@ -356,8 +392,42 @@ const getSeverity = (statusId) => {
         case APPLICATION_APPROVAL_STATUS.REJECTED:
             return "danger";
             break;
+        case APPLICATION_APPROVAL_STATUS.DELETE_REQUEST:
+            return "warn";
+            break;
+        case APPLICATION_APPROVAL_STATUS.DELETED:
+            return "secondary";
+            break;
         default:
             break;
+    }
+}
+
+const onDeleteRequest = () => {
+    if (selectedApplication.value) {
+        visibleDeleteDialog.value = true;
+    } else {
+        isNoSelectedApplication.value = true;
+        setTimeout(() => { isNoSelectedApplication.value = false; }, 2000);
+    }
+}
+
+const sendDeleteRequest = async () => {
+    try {
+        const applicationId = selectedApplication.value.id;
+        const response = await axios.put(`http://localhost:8080/applications/${applicationId}/request`);
+        if (response.status === 200) {
+            console.log('Yêu cầu xóa đã được gửi thành công')
+            visibleDeleteDialog.value = false;
+            isSendRequestOK.value = true;
+            await retrieveApplicationListByDeveloperId();
+            setTimeout(() => {
+                isSendRequestOK.value = false;
+            }, 2000);
+        }
+
+    } catch (error) {
+        console.error('Lỗi khi gửi yêu cầu xóa', error);
     }
 }
 
@@ -365,16 +435,16 @@ const formatNumber = (number) => {
     return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-const formatStorageCapacity =(bytes) => {
-  if (bytes >= 1024 ** 3) {
-    return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
-  } else if (bytes >= 1024 ** 2) {
-    return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
-  } else if (bytes >= 1024) {
-    return `${(bytes / 1024).toFixed(2)} KB`;
-  } else {
-    return `${bytes} B`;
-  }
+const formatStorageCapacity = (bytes) => {
+    if (bytes >= 1024 ** 3) {
+        return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+    } else if (bytes >= 1024 ** 2) {
+        return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
+    } else if (bytes >= 1024) {
+        return `${(bytes / 1024).toFixed(2)} KB`;
+    } else {
+        return `${bytes} B`;
+    }
 }
 
 const retriveProducts = async () => {
@@ -391,10 +461,10 @@ const retrieveApplicationListByDeveloperId = async () => {
     try {
         isLoading.value = true;
         // setTimeout(async () => {
-            const developerId = JSON.parse(localStorage.getItem('developer')).id;
-            const response = await ApplicationService.getAllByDeveloperId(developerId);
-            applicationListResponse.value = response.data;
-            currentTotalApplications.value = applicationListResponse.value?.length!;
+        const developerId = JSON.parse(localStorage.getItem('developer')).id;
+        const response = await ApplicationService.getAllByDeveloperId(developerId);
+        applicationListResponse.value = response.data;
+        currentTotalApplications.value = applicationListResponse.value?.length!;
         // }, 10000);
         isLoading.value = false;
     } catch (error) {
@@ -477,8 +547,12 @@ const activeAddForm = () => {
 }
 
 const activeUpdateForm = () => {
-    if (selectedProduct.value.id > 0)
+    if (!selectedApplication.value) {
+        isNoSelectedApplication.value = true;
+        setTimeout(() => { isNoSelectedApplication.value = false; }, 2000);
+    } else {
         productStore.setIsShowUpdateFormClick(true);
+    }
 }
 const showDetails = async () => {
     try {

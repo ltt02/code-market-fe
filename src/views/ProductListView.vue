@@ -15,8 +15,9 @@
             <h3 class="font-medium mb-2">{{ filter.name }}</h3>
             <ul class="space-y-2">
               <li v-for="option in filter.options" :key="option" class="flex items-center">
-                <input :id="option" type="checkbox" :checked="isOptionChecked(option)" class="mr-2" @click.prevent="reRenderList()"/>
-                <label :for="option" class="text-sm text-gray-600">{{ option }}</label>
+                <Checkbox v-model="optionCheckedList" name="optionCheckedList" inputId="option" :value="option.name"
+                  class="mr-2" @change="onChangeOption" />
+                <label :for="option" class="text-sm text-gray-600">{{ option.name }}</label>
               </li>
             </ul>
           </div>
@@ -43,13 +44,14 @@
 
           <!-- Product Grid -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 product-list-view">
-            <div v-for="app in applicationList" :key="app.id" class="bg-white rounded-lg shadow">
+            <div v-for="app in applicationForRender" :key="app.id" class="bg-white rounded-lg shadow">
               <ProductCard :application="app" />
             </div>
           </div>
 
           <!-- Pagination -->
-          <div v-if="filteredApplications?.length >= 9 || queryApplications?.length >= 9" class="flex justify-center mt-8 space-x-2 mb-16">
+          <div v-if="filteredApplications?.length >= 9 || queryApplications?.length >= 9"
+            class="flex justify-center mt-8 space-x-2 mb-16">
             <button v-for="page in 5" :key="page"
               :class="['px-3 py-1 rounded', page === 1 ? 'bg-blue-500 text-white' : 'bg-gray-200']">
               {{ page }}
@@ -68,30 +70,47 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router';
 import { GithubIcon, SendIcon, TwitterIcon, FacebookIcon } from 'lucide-vue-next'
+import Checkbox from 'primevue/checkbox';
 import ApplicationFrameworkService from "@/services/application_framework.service.ts"
+import ApplicationCategoryService from "@/services/application_category.service.ts"
+import ApplicationTypeService from "@/services/application_type.service.ts"
+import ApplicationpPlatformService from "@/services/application_platform.service.ts"
 import ApplicationService from "@/services/application.service.js"
 
 const route = useRoute();
 const filterItemName = route.query.filterItemName;
 const queryName = route.query.query;
 
+const frameworkList = ref([]);
+const categoryList = ref([]);
+const platformList = ref([]);
+const typeList = ref([]);
+
+const optionList = ref([]);
+const optionCheckedList = ref([]);
+const applicationWithOptionList = ref([]);
+
 const navItems = ['WordPress', 'React', 'Bootstrap', 'Android', 'React Native', 'Flutter', 'Ionic', 'iOS', 'Unity', 'AI Tools']
 
 const filters = ref([
   {
-    name: 'Công nghệ  ',
+    name: 'Công nghệ',
     options: []
   },
   {
     name: 'Lĩnh vực',
-    options: ['Sách, Khóa học', 'Trò chuyện', 'Crypto & Blockchain', 'Công cụ phát triển', 'Thương mại điện tử', 'Sự kiện & Từ thiện']
+    options: []
   },
   {
     name: 'Loại',
-    options: ['Mẫu thiết kế', 'Bộ UI', 'Chủ đề', 'Plugins']
+    options: []
+  },
+  {
+    name: 'Nền tảng',
+    options: []
   }
 ])
 
@@ -108,18 +127,38 @@ const products = [
 
 const applicationListResponse = ref([]);
 
+const applicationForRender = ref([]);
+
 const isOptionChecked = (option) => {
   return option === filterItemName
 }
 
+const onChangeOption = () => {
+  if (optionCheckedList.value.length == 0) {
+    applicationForRender.value = applicationList.value;
+    return;
+  }
+  console.log("applicationWithOptionList:", applicationWithOptionList.value);
+  console.log("optionCheckedList:", optionCheckedList.value);
+  applicationForRender.value = applicationWithOptionList.value
+    .filter((app) => {
+      console.log("App:", app);
+      const result = app.option.some((option) => optionCheckedList.value.includes(option));
+      console.log("App passes filter:", result);
+      return result;
+    });
+  console.log("optionCheckedList types:", optionCheckedList.value.map((item) => typeof item));
+  console.log("option types:", app.option.map((item) => typeof item));
+}
+
 const filteredApplications = computed(() => {
-  if (filterItemName){
+  if (filterItemName) {
     return applicationListResponse.value.allApplications.filter((application) => application.applicationFramework.name === filterItemName);
   }
 });
 
 const queryApplications = computed(() => {
-  if (queryName){
+  if (queryName) {
     return applicationListResponse.value.allApplications.filter((application) => application.name.toLowerCase().includes(queryName.toLowerCase()));
   }
 });
@@ -134,18 +173,37 @@ const applicationList = computed(() => {
   }
 });
 
-const getFrameworkList = async () => {
-  const response = await ApplicationFrameworkService.getFrameworkList();
-  filters.value[0].options = response.map(framework => framework.name);
-  return response;
-}
-
 const retrieveApplicationList = async () => {
   try {
     applicationListResponse.value = await ApplicationService.getAll();
+    applicationForRender.value = applicationListResponse.value.allApplications;
   } catch (error) {
     console.log(error);
   }
+}
+
+const getFrameworkList = async () => {
+  const response = await ApplicationFrameworkService.getFrameworkList();
+  frameworkList.value = response;
+  filters.value[0].options = response;
+}
+
+const getCategoryList = async () => {
+  const response = await ApplicationCategoryService.getCategoryList();
+  categoryList.value = response;
+  filters.value[1].options = response;
+}
+
+const getPlatformList = async () => {
+  const response = await ApplicationpPlatformService.getPlatformList();
+  platformList.value = response;
+  filters.value[3].options = response;
+}
+
+const getTypeList = async () => {
+  const response = await ApplicationTypeService.getTypeList();
+  typeList.value = response;
+  filters.value[2].options = response;
 }
 
 const init = async () => {
@@ -153,7 +211,27 @@ const init = async () => {
   await retrieveApplicationList();
 }
 
-init();
+onBeforeMount(async () => {
+  await getFrameworkList();
+  await getCategoryList();
+  await getPlatformList();
+  await getTypeList();
+  optionList.value = [
+    ...frameworkList.value.map(item => item.name),
+    ...categoryList.value.map(item => item.name),
+    ...platformList.value.map(item => item.name),
+    ...typeList.value.map(item => item.name)];
+  await init();
+  applicationWithOptionList.value = applicationList.value.map(app => ({
+    ...app,
+    option: [
+      ...app.applicationFrameworkList.map(item => item.name),
+      ...app.applicationCategoryList.map(item => item.name),
+      ...app.applicationPlatformList.map(item => item.name),
+      app.applicationType.name,
+    ],
+  }));
+});
 </script>
 
 <style>
